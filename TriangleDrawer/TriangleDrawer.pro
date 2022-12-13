@@ -6,7 +6,7 @@ CONFIG += c++17
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-INCLUDEPATH += ../../eigen
+INCLUDEPATH += ../eigen
 
 SOURCES += \
     cuthillmckeeutils.cpp \
