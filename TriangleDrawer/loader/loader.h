@@ -10,14 +10,19 @@ public:
   Loader() = default;
   Loader(const QString &path);
 
-  void load(const QString &path);
+  bool load();
 
-  QVector<QPointF> vertices() const;
+  const QVector<QPointF> &getVertices() const;
+
+  const QString &getPath() const;
+  void setPath(const QString &path);
 
 private:
-  void parseVertices(const QString &vertex);
+  bool parseVertices(const QString &vertex);
 
   QVector<QPointF> m_vertices;
+
+  QString m_path;
 };
 
 #endif // LOADER_H

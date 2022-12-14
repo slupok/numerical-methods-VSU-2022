@@ -20,5 +20,3 @@ add_executable(${CMAKE_PROJECT_NAME} ${HDRS} ${SRCS})
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets)
-
-add_definitions(-DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")

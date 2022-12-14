@@ -1,9 +1,11 @@
 #include "mainwindow.h"
-#include "loader.h"
+
+#include "triangulationutils.h"
 #include "viewport.h"
 
-#include "cuthillmckeeutils.h"
-#include "triangulationutils.h"
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QMessageBox>
 
 #include <iostream>
 #include <vector>
@@ -12,28 +14,19 @@ using namespace std;
 
 using namespace StiffnessUtils;
 using namespace TriangulationUtils;
-using namespace CuthillMckeeUtils;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-  setFixedSize(1000, 500);
+  this->createLayout();
+  this->createMenuBar();
 
-  m_points << QPointF(0.0, 0.0) << QPointF(0.0, 1.0) << QPointF(1.0, 0.0)
-           << QPointF(1.0, 1.0);
-  m_indices << 0 << 1 << 2 << 1 << 2 << 3;
+  QObject::connect(&m_loader, &LoaderThread::failed, this, &MainWindow::failed);
+  QObject::connect(&m_loader, &LoaderThread::loaded, this, &MainWindow::loaded);
+}
 
-  m_loader.load(QString(PROJECT_SOURCE_DIR) + "/geometry.txt");
-  m_points = m_loader.vertices();
+MainWindow::~MainWindow() {}
 
-  std::pair<QVector<int>, QVector<QPointF>> indicesPoints =
-      triangulationPolygon(m_points, 2);
-  m_indices = indicesPoints.first;
-  m_points = indicesPoints.second;
-
+void MainWindow::createLayout() {
   m_viewport = new Viewport();
-  m_viewport->setPoints(m_points);
-  m_viewport->setTriangleIndices(m_indices);
-  m_viewport->update();
 
   //
   m_ELabel = new QLabel("E: ");
@@ -126,7 +119,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::computeDisplacment);
 }
 
-MainWindow::~MainWindow() {}
+void MainWindow::createMenuBar() {
+  QMenuBar *menuBar = this->menuBar();
+
+  QMenu *fileMenu = menuBar->addMenu("File");
+
+  QAction *openAction = fileMenu->addAction("Open");
+
+  QObject::connect(openAction, &QAction::triggered, this, &MainWindow::open);
+}
 
 void MainWindow::disableUI() {
   m_xCoordTextEdit->setEnabled(false);
@@ -269,4 +270,40 @@ void MainWindow::computeDisplacment() {
   m_viewport->setPoints(m_points);
   m_viewport->setTriangleIndices(m_indices);
   m_viewport->update();
+}
+
+void MainWindow::open() {
+  if (m_loader.isRunning()) {
+    QMessageBox::warning(this, "warning!",
+                         "Unable to load new file, while loading: " +
+                             m_loader.getPath());
+    return;
+  }
+
+  const QString file = QFileDialog::getOpenFileName(this);
+
+  if (file.isEmpty()) {
+    return;
+  }
+
+  m_loader.setPath(file);
+  m_loader.load();
+}
+
+void MainWindow::loaded() {
+  m_points = m_loader.getVertices();
+
+  std::pair<QVector<int>, QVector<QPointF>> indicesPoints =
+      triangulationPolygon(m_points, 2);
+  m_indices = indicesPoints.first;
+  m_points = indicesPoints.second;
+
+  m_viewport->setPoints(m_points);
+  m_viewport->setTriangleIndices(m_indices);
+  m_viewport->update();
+}
+
+void MainWindow::failed() {
+  QMessageBox::warning(this, "warning!",
+                       "Unable to load file: " + m_loader.getPath());
 }
