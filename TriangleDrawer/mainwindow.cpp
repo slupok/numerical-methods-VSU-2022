@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    int currentLength = getBandWidth(adjacencyMatrix, adjacencyMatrix.cols());
     //
 
-    m_loader.load("geometry.txt");
+    m_loader.load(QString(PROJECT_SOURCE_DIR) + "/geometry.txt");
     m_points = m_loader.vertices();
 
     std::pair<QVector<int>, QVector<QPointF>> indicesPoints = triangulationPolygon(m_points, 2);

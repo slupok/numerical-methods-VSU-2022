@@ -1,0 +1,6 @@
+[submodule "TriangleDrawer/lib/eigen"]
+	path = TriangleDrawer/lib/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "lib/eigen"]
+	path = lib/eigen
+	url = https://gitlab.com/libeigen/eigen.git
