@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(TriangleDrawer VERSION 0.1.0 LANGUAGES CXX)
+project(elastic VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD            17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -13,8 +13,8 @@ include_directories(${EIGEN_DIR})
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/TriangleDrawer/*.cpp)
-file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/TriangleDrawer/*.h)
+file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(${CMAKE_PROJECT_NAME} ${HDRS} ${SRCS})
 
