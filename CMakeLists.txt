@@ -20,3 +20,35 @@ add_executable(${CMAKE_PROJECT_NAME} ${HDRS} ${SRCS})
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets)
+
+message("${CMAKE_CXX_COMPILER_ID} COMPILER")
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+
+  target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+    /W4
+    # /WX TODO uncomment
+  )
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+    # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+    # -Werror TODO uncomment
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wcast-align
+    -Wcast-qual
+    -Wconversion
+    -Wenum-compare
+    -Wfloat-equal
+    -Wredundant-decls
+    -Wsign-conversion
+    # https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html
+    -Wctor-dtor-privacy
+    -Wnon-virtual-dtor
+    -Wold-style-cast
+    -Woverloaded-virtual
+    -Wsign-promo
+  )
+endif()
