@@ -11,7 +11,7 @@ set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 set(EIGEN_DIR ${LIB_DIR}/eigen)
 include_directories(${EIGEN_DIR})
 
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/src/*.h)
