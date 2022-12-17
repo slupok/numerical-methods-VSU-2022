@@ -3,6 +3,7 @@
 
 #include "loader/loaderthread.h"
 
+#include "pointeditor.h"
 #include "stiffnessutils.h"
 #include "viewport.h"
 
@@ -45,19 +46,14 @@ private:
   void enableUI();
 
   Viewport *m_viewport = nullptr;
+  PointEditor *m_point_editor = nullptr;
 
   // Constraints settings
-  QLabel *m_constraintsByAxisLabel = nullptr;
   QComboBox *m_constraintsByAxis = nullptr;
   //
 
-  QLabel *m_pointIndex = nullptr;
-
   // Material settings
-  QLabel *m_ELabel = nullptr;
   QLineEdit *m_ETextEdit = nullptr;
-
-  QLabel *m_vLabel = nullptr;
   QLineEdit *m_vTextEdit = nullptr;
   //
 
@@ -66,24 +62,18 @@ private:
   //
 
   // Displacment settings
-  QLabel *m_uDisplacmentLabel = nullptr;
   QLineEdit *m_uDisplacmentTextEdit = nullptr;
-
-  QLabel *m_vDisplacmentLabel = nullptr;
   QLineEdit *m_vDisplacmentTextEdit = nullptr;
   //
 
   // Point coord settings
-  QLabel *m_xCoordLabel = nullptr;
   QLineEdit *m_xCoordTextEdit = nullptr;
-
-  QLabel *m_yCoordLabel = nullptr;
   QLineEdit *m_yCoordTextEdit = nullptr;
   //
 
   QPushButton *m_applySettings = nullptr;
 
-  // Datas
+  // Data
   QVector<QPointF> m_points;
   QVector<int> m_indices;
 

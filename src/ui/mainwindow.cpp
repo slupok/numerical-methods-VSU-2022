@@ -1,8 +1,5 @@
 #include "mainwindow.h"
 
-#include "triangulationutils.h"
-#include "viewport.h"
-
 #include <QFileDialog>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -10,10 +7,9 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
-using namespace StiffnessUtils;
-using namespace TriangulationUtils;
+#include "common/pointinfo.h"
+#include "triangulationutils.h"
+#include "viewport.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   this->createLayout();
@@ -26,58 +22,56 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() {}
 
 void MainWindow::createLayout() {
-  m_viewport = new Viewport();
+  m_viewport = new Viewport(this);
+  m_point_editor = new PointEditor(this);
 
   //
-  m_ELabel = new QLabel("E: ");
   m_ETextEdit = new QLineEdit;
   m_ETextEdit->setText("1");
   QHBoxLayout *materialELayout = new QHBoxLayout;
-  materialELayout->addWidget(m_ELabel);
+  materialELayout->addWidget(new QLabel("E: "));
   materialELayout->addWidget(m_ETextEdit);
 
-  m_vLabel = new QLabel("v: ");
   m_vTextEdit = new QLineEdit;
   m_vTextEdit->setText("0.3");
   QHBoxLayout *materialVLayout = new QHBoxLayout;
-  materialVLayout->addWidget(m_vLabel);
+  materialVLayout->addWidget(new QLabel("v: "));
   materialVLayout->addWidget(m_vTextEdit);
 
-  m_xCoordLabel = new QLabel("x: ");
   m_xCoordTextEdit = new QLineEdit;
   QHBoxLayout *coordXLayout = new QHBoxLayout;
-  coordXLayout->addWidget(m_xCoordLabel);
+  coordXLayout->addWidget(new QLabel("x: "));
   coordXLayout->addWidget(m_xCoordTextEdit);
 
-  m_yCoordLabel = new QLabel("y: ");
   m_yCoordTextEdit = new QLineEdit;
   QHBoxLayout *coordYLayout = new QHBoxLayout;
-  coordYLayout->addWidget(m_yCoordLabel);
+  coordYLayout->addWidget(new QLabel("y: "));
   coordYLayout->addWidget(m_yCoordTextEdit);
 
-  m_uDisplacmentLabel = new QLabel("u: ");
   m_uDisplacmentTextEdit = new QLineEdit;
   m_uDisplacmentTextEdit->setText("0");
   QHBoxLayout *uDisplacmentLayout = new QHBoxLayout;
-  uDisplacmentLayout->addWidget(m_uDisplacmentLabel);
+  uDisplacmentLayout->addWidget(new QLabel("u: "));
   uDisplacmentLayout->addWidget(m_uDisplacmentTextEdit);
 
-  m_vDisplacmentLabel = new QLabel("v: ");
   m_vDisplacmentTextEdit = new QLineEdit;
   m_vDisplacmentTextEdit->setText("0");
   QHBoxLayout *vDisplacmentLayout = new QHBoxLayout;
-  vDisplacmentLayout->addWidget(m_vDisplacmentLabel);
+  vDisplacmentLayout->addWidget(new QLabel("v: "));
   vDisplacmentLayout->addWidget(m_vDisplacmentTextEdit);
 
   m_applySettings = new QPushButton("Apply");
   m_computeButton = new QPushButton("Compute");
 
-  m_constraintsByAxisLabel = new QLabel("Constraints: ");
   m_constraintsByAxis = new QComboBox;
   m_constraintsByAxis->addItems(QStringList() << "None"
                                               << "X"
                                               << "Y"
                                               << "XY");
+  QHBoxLayout *constraintsByAxisLayout = new QHBoxLayout;
+  constraintsByAxisLayout->addWidget(new QLabel("Constraints: "));
+  constraintsByAxisLayout->addWidget(m_constraintsByAxis);
+
   //
 
   QVBoxLayout *controlsLayout = new QVBoxLayout;
@@ -87,13 +81,13 @@ void MainWindow::createLayout() {
   controlsLayout->addLayout(coordYLayout);
   controlsLayout->addLayout(uDisplacmentLayout);
   controlsLayout->addLayout(vDisplacmentLayout);
-  controlsLayout->addWidget(m_constraintsByAxisLabel);
-  controlsLayout->addWidget(m_constraintsByAxis);
+  controlsLayout->addLayout(constraintsByAxisLayout);
   controlsLayout->addWidget(m_applySettings);
   controlsLayout->addWidget(m_computeButton);
 
   QHBoxLayout *viewportControlLayout = new QHBoxLayout;
   viewportControlLayout->addWidget(m_viewport, 1);
+  viewportControlLayout->addWidget(m_point_editor, 2);
   viewportControlLayout->addLayout(controlsLayout);
 
   QWidget *centralWidget = new QWidget();
@@ -166,11 +160,18 @@ void MainWindow::pointSelected(const int pointIndex) {
   bool isDisplacmentFound = false;
   bool isConstraintsFound = false;
 
+  PointInfo info;
+  info.coordinate.setX(x);
+  info.coordinate.setY(y);
+
   for (int displacmentIndex = 0; displacmentIndex < m_displacments.size();
-       ++displacmentIndex)
+       ++displacmentIndex) {
     if (m_displacments[displacmentIndex].pointIndex == m_selectedPointIndex) {
       const float u = m_displacments[displacmentIndex].u;
       const float v = m_displacments[displacmentIndex].v;
+
+      info.displacement.setX(u);
+      info.displacement.setY(v);
 
       m_uDisplacmentTextEdit->setText(QString::number(u));
       m_vDisplacmentTextEdit->setText(QString::number(v));
@@ -179,9 +180,10 @@ void MainWindow::pointSelected(const int pointIndex) {
 
       break;
     }
+  }
 
   for (int constraintsIndex = 0; constraintsIndex < m_constraints.size();
-       ++constraintsIndex)
+       ++constraintsIndex) {
     if (m_constraints[constraintsIndex].pointIndex == m_selectedPointIndex) {
       StiffnessUtils::Constraints::Type constraintsType =
           m_constraints[constraintsIndex].type;
@@ -194,6 +196,7 @@ void MainWindow::pointSelected(const int pointIndex) {
 
       break;
     }
+  }
 
   if (!isDisplacmentFound) {
     m_uDisplacmentTextEdit->setText(QString::number(0));
@@ -247,7 +250,7 @@ void MainWindow::applySettings() {
       return;
     }
 
-  Displacment displacment;
+  StiffnessUtils::Displacment displacment;
   displacment.u = m_u;
   displacment.v = m_v;
   displacment.pointIndex = m_selectedPointIndex;
@@ -256,7 +259,7 @@ void MainWindow::applySettings() {
   if (m_constraintsByAxis->currentIndex() == 0)
     return;
 
-  Constraints constraints;
+  StiffnessUtils::Constraints constraints;
   constraints.type =
       StiffnessUtils::Constraints::Type(m_constraintsByAxis->currentIndex());
   constraints.pointIndex = m_selectedPointIndex;
@@ -294,7 +297,7 @@ void MainWindow::loaded() {
   m_points = m_loader.getVertices();
 
   std::pair<QVector<int>, QVector<QPointF>> indicesPoints =
-      triangulationPolygon(m_points, 2);
+      TriangulationUtils::triangulationPolygon(m_points, 2);
   m_indices = indicesPoints.first;
   m_points = indicesPoints.second;
 
