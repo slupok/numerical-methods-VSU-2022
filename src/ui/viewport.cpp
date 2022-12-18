@@ -73,19 +73,19 @@ void Viewport::drawTriangles() {
 
   for (int pointIndex = 0; pointIndex < m_triangleIndices.size() - 2;
        pointIndex += 3) {
-    const float x1 =
+    const double x1 =
         m_points[m_triangleIndices[pointIndex]].x() * m_scaleFactor;
-    const float y1 =
+    const double y1 =
         m_points[m_triangleIndices[pointIndex]].y() * m_scaleFactor;
 
-    const float x2 =
+    const double x2 =
         m_points[m_triangleIndices[pointIndex + 1]].x() * m_scaleFactor;
-    const float y2 =
+    const double y2 =
         m_points[m_triangleIndices[pointIndex + 1]].y() * m_scaleFactor;
 
-    const float x3 =
+    const double x3 =
         m_points[m_triangleIndices[pointIndex + 2]].x() * m_scaleFactor;
-    const float y3 =
+    const double y3 =
         m_points[m_triangleIndices[pointIndex + 2]].y() * m_scaleFactor;
 
     m_scene->addLine(x1, y1, x2, y2, linePen);

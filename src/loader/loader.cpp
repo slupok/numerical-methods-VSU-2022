@@ -41,8 +41,15 @@ bool Loader::parseVertices(const QString &vertex) {
     return false;
   }
 
-  float x = splittedVertex[1].toFloat();
-  float y = splittedVertex[2].toFloat();
+  bool xOk;
+  bool yOk;
+
+  float x = splittedVertex[1].toFloat(&xOk);
+  float y = splittedVertex[2].toFloat(&yOk);
+
+  if (!xOk || !yOk) {
+    return false;
+  }
 
   m_vertices.push_back(QPointF(x, y));
 

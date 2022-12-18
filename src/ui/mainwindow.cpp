@@ -151,8 +151,8 @@ void MainWindow::pointSelected(const int pointIndex) {
 
   m_selectedPointIndex = pointIndex;
 
-  const float x = m_points[pointIndex].x();
-  const float y = m_points[pointIndex].y();
+  const double x = m_points[pointIndex].x();
+  const double y = m_points[pointIndex].y();
 
   m_xCoordTextEdit->setText(QString::number(x));
   m_yCoordTextEdit->setText(QString::number(y));
@@ -187,7 +187,7 @@ void MainWindow::pointSelected(const int pointIndex) {
     if (m_constraints[constraintsIndex].pointIndex == m_selectedPointIndex) {
       StiffnessUtils::Constraints::Type constraintsType =
           m_constraints[constraintsIndex].type;
-      m_constraintsByAxis->setCurrentIndex((int)constraintsType);
+      m_constraintsByAxis->setCurrentIndex(static_cast<int>(constraintsType));
 
       m_uDisplacmentTextEdit->setEnabled(false);
       m_vDisplacmentTextEdit->setEnabled(false);
