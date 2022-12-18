@@ -264,7 +264,10 @@ void MainWindow::applySettings() {
 }
 
 void MainWindow::computeDisplacment() {
-  StiffnessUtils::compute(70000.0f, 0.3f, m_points, m_indices, m_displacments,
+  float e = m_ETextEdit->text().toFloat();
+  float v = m_vTextEdit->text().toFloat();
+  qDebug() << e << "      |      " << v;
+  StiffnessUtils::compute(e, v, m_points, m_indices, m_displacments,
                           m_constraints);
 
   m_viewport->setPoints(m_points);
