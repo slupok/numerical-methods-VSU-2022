@@ -266,7 +266,7 @@ void MainWindow::applySettings() {
 void MainWindow::computeDisplacment() {
   float e = m_ETextEdit->text().toFloat();
   float v = m_vTextEdit->text().toFloat();
-  qDebug() << e << "      |      " << v;
+
   StiffnessUtils::compute(e, v, m_points, m_indices, m_displacments,
                           m_constraints);
 
