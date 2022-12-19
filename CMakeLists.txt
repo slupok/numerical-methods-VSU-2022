@@ -18,8 +18,8 @@ file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(${CMAKE_PROJECT_NAME} ${HDRS} ${SRCS})
 
-find_package(Qt5 REQUIRED COMPONENTS Widgets)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Core)
 
 message("${CMAKE_CXX_COMPILER_ID} COMPILER")
 

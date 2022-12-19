@@ -26,7 +26,15 @@ struct Displacment {
 };
 
 struct Constraints {
-  enum class Type { None = 0, X, Y, XY };
+  enum class Type {
+    None = 0,
+    X = 1,
+    Y = 2,
+    XY = 3,
+  };
+
+  static const constexpr std::initializer_list<const char *const> typesString =
+      {"None", "X", "Y", "XY"};
 
   Type type = Type::None;
   int pointIndex = -1;

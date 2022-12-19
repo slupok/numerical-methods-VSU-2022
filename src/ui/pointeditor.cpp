@@ -1,94 +1,146 @@
 #include "pointeditor.h"
 
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLineEdit>
+#include <Qt>
+
+#include "stiffnessutils.h"
 
 PointEditor::PointEditor(QWidget *parent, Qt::WindowFlags f)
     : QWidget(parent, f) {
   this->createLayout();
+  this->createConnections();
   this->disableUI();
 }
 
 void PointEditor::disableUI() {
-  m_xCoordTextEdit->setEnabled(false);
-  m_yCoordTextEdit->setEnabled(false);
-  m_uDisplacmentTextEdit->setEnabled(false);
-  m_vDisplacmentTextEdit->setEnabled(false);
-  m_constraintsByAxis->setEnabled(false);
+  mXCoordinateSpinBox->setEnabled(false);
+  mYCoordinateSpinBox->setEnabled(false);
+  mUDisplacementSpinBox->setEnabled(false);
+  mVDisplacementSpinBox->setEnabled(false);
+  mConstraints->setEnabled(false);
 }
 
 void PointEditor::enableUI() {
-  m_xCoordTextEdit->setEnabled(true);
-  m_yCoordTextEdit->setEnabled(true);
-  m_uDisplacmentTextEdit->setEnabled(true);
-  m_vDisplacmentTextEdit->setEnabled(true);
-  m_constraintsByAxis->setEnabled(true);
+  mXCoordinateSpinBox->setEnabled(true);
+  mYCoordinateSpinBox->setEnabled(true);
+  mUDisplacementSpinBox->setEnabled(true);
+  mVDisplacementSpinBox->setEnabled(true);
+  mConstraints->setEnabled(true);
 }
 
 void PointEditor::createLayout() {
-  //
-  m_ETextEdit = new QLineEdit;
-  m_ETextEdit->setText("1");
-  QHBoxLayout *materialELayout = new QHBoxLayout;
-  materialELayout->addWidget(new QLabel("E: "));
-  materialELayout->addWidget(m_ETextEdit);
+  QGridLayout *mainGrid = new QGridLayout();
+  mainGrid->setAlignment(Qt::AlignCenter);
 
-  m_vTextEdit = new QLineEdit;
-  m_vTextEdit->setText("0.3");
-  QHBoxLayout *materialVLayout = new QHBoxLayout;
-  materialVLayout->addWidget(new QLabel("v: "));
-  materialVLayout->addWidget(m_vTextEdit);
+  {
+    QLabel *coordinateLabel = new QLabel("Coordinate");
+    coordinateLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(coordinateLabel, 0, 0,
+                        Qt::AlignVCenter | Qt::AlignRight);
 
-  m_xCoordTextEdit = new QLineEdit;
-  QHBoxLayout *coordXLayout = new QHBoxLayout;
-  coordXLayout->addWidget(new QLabel("x: "));
-  coordXLayout->addWidget(m_xCoordTextEdit);
+    // x
+    QLabel *xLabel = new QLabel("X");
+    xLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(xLabel, 0, 1, Qt::AlignVCenter | Qt::AlignRight);
 
-  m_yCoordTextEdit = new QLineEdit;
-  QHBoxLayout *coordYLayout = new QHBoxLayout;
-  coordYLayout->addWidget(new QLabel("y: "));
-  coordYLayout->addWidget(m_yCoordTextEdit);
+    mXCoordinateSpinBox = new QDoubleSpinBox;
+    mainGrid->addWidget(mXCoordinateSpinBox, 0, 2, Qt::AlignCenter);
 
-  m_uDisplacmentTextEdit = new QLineEdit;
-  m_uDisplacmentTextEdit->setText("0");
-  QHBoxLayout *uDisplacmentLayout = new QHBoxLayout;
-  uDisplacmentLayout->addWidget(new QLabel("u: "));
-  uDisplacmentLayout->addWidget(m_uDisplacmentTextEdit);
+    // y
+    QLabel *yLabel = new QLabel("Y");
+    yLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(yLabel, 1, 1, Qt::AlignVCenter | Qt::AlignRight);
 
-  m_vDisplacmentTextEdit = new QLineEdit;
-  m_vDisplacmentTextEdit->setText("0");
-  QHBoxLayout *vDisplacmentLayout = new QHBoxLayout;
-  vDisplacmentLayout->addWidget(new QLabel("v: "));
-  vDisplacmentLayout->addWidget(m_vDisplacmentTextEdit);
+    mYCoordinateSpinBox = new QDoubleSpinBox;
+    mainGrid->addWidget(mYCoordinateSpinBox, 1, 2, Qt::AlignCenter);
+  }
 
-  m_applySettings = new QPushButton("Apply");
-  m_computeButton = new QPushButton("Compute");
+  {
+    QLabel *displacementLabel = new QLabel("Displacement");
+    displacementLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(displacementLabel, 2, 0,
+                        Qt::AlignVCenter | Qt::AlignRight);
 
-  m_constraintsByAxis = new QComboBox;
-  m_constraintsByAxis->addItems(QStringList() << "None"
-                                              << "X"
-                                              << "Y"
-                                              << "XY");
-  QHBoxLayout *constraintsByAxisLayout = new QHBoxLayout;
-  constraintsByAxisLayout->addWidget(new QLabel("Constraints: "));
-  constraintsByAxisLayout->addWidget(m_constraintsByAxis);
+    // u
+    QLabel *uLabel = new QLabel("U");
+    uLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(uLabel, 2, 1, Qt::AlignVCenter | Qt::AlignRight);
 
-  //
-  QVBoxLayout *controlsLayout = new QVBoxLayout;
-  controlsLayout->addLayout(materialELayout);
-  controlsLayout->addLayout(materialVLayout);
-  controlsLayout->addLayout(coordXLayout);
-  controlsLayout->addLayout(coordYLayout);
-  controlsLayout->addLayout(uDisplacmentLayout);
-  controlsLayout->addLayout(vDisplacmentLayout);
-  controlsLayout->addLayout(constraintsByAxisLayout);
-  controlsLayout->addWidget(m_applySettings);
-  controlsLayout->addWidget(m_computeButton);
+    mUDisplacementSpinBox = new QDoubleSpinBox;
+    mainGrid->addWidget(mUDisplacementSpinBox, 2, 2, Qt::AlignCenter);
 
-  QHBoxLayout *viewportControlLayout = new QHBoxLayout;
-  viewportControlLayout->addLayout(controlsLayout);
+    // v
+    QLabel *vLabel = new QLabel("V");
+    vLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(vLabel, 3, 1, Qt::AlignVCenter | Qt::AlignRight);
 
-  this->setLayout(viewportControlLayout);
+    mVDisplacementSpinBox = new QDoubleSpinBox;
+    mainGrid->addWidget(mVDisplacementSpinBox, 3, 2, Qt::AlignCenter);
+  }
+
+  {
+    QLabel *constraintsLabel = new QLabel("Constraint");
+    constraintsLabel->setAlignment(Qt::AlignRight);
+    mainGrid->addWidget(constraintsLabel, 4, 0, 4, 1,
+                        Qt::AlignVCenter | Qt::AlignRight);
+
+    QStringList types;
+
+    for (const auto &type : StiffnessUtils::Constraints::typesString) {
+      types << type;
+    }
+
+    mConstraints = new QComboBox;
+    mConstraints->addItems(types);
+    mainGrid->addWidget(mConstraints, 4, 1, 4, 2, Qt::AlignCenter);
+  }
+
+  this->setLayout(mainGrid);
+}
+
+void PointEditor::createConnections() {
+  // Coordinate
+  QObject::connect(mXCoordinateSpinBox,
+                   qOverload<double>(&QDoubleSpinBox::valueChanged), this,
+                   [this](const double &value) {
+                     mPointInfo.coordinate.setX(value);
+
+                     emit pointChanged(mPointInfo);
+                   });
+  QObject::connect(mYCoordinateSpinBox,
+                   qOverload<double>(&QDoubleSpinBox::valueChanged), this,
+                   [this](const double &value) {
+                     mPointInfo.coordinate.setY(value);
+
+                     emit pointChanged(mPointInfo);
+                   });
+
+  // Displacement
+  QObject::connect(mUDisplacementSpinBox,
+                   qOverload<double>(&QDoubleSpinBox::valueChanged), this,
+                   [this](const double &value) {
+                     mPointInfo.displacement.setX(value);
+
+                     emit pointChanged(mPointInfo);
+                   });
+  QObject::connect(mVDisplacementSpinBox,
+                   qOverload<double>(&QDoubleSpinBox::valueChanged), this,
+                   [this](const double &value) {
+                     mPointInfo.displacement.setY(value);
+
+                     emit pointChanged(mPointInfo);
+                   });
+
+  // Constraint
+  QObject::connect(mConstraints,
+                   qOverload<int>(&QComboBox::currentIndexChanged), this,
+                   [this](const int &value) {
+                     mPointInfo.constraintType =
+                         static_cast<StiffnessUtils::Constraints::Type>(value);
+
+                     emit pointChanged(mPointInfo);
+                   });
 }
 
 PointInfo PointEditor::getPointInfo() const { return mPointInfo; }

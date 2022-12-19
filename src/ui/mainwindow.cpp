@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <Qt>
 
 #include <iostream>
 #include <vector>
@@ -84,11 +85,14 @@ void MainWindow::createLayout() {
   controlsLayout->addLayout(constraintsByAxisLayout);
   controlsLayout->addWidget(m_applySettings);
   controlsLayout->addWidget(m_computeButton);
+  controlsLayout->setAlignment(Qt::AlignCenter);
 
   QHBoxLayout *viewportControlLayout = new QHBoxLayout;
-  viewportControlLayout->addWidget(m_viewport, 1);
-  viewportControlLayout->addWidget(m_point_editor, 2);
-  viewportControlLayout->addLayout(controlsLayout);
+  viewportControlLayout->addWidget(m_viewport, 0);
+  viewportControlLayout->addWidget(m_point_editor, 0);
+  viewportControlLayout->addLayout(controlsLayout, 0);
+
+  viewportControlLayout->setAlignment(Qt::AlignCenter);
 
   QWidget *centralWidget = new QWidget();
   centralWidget->setLayout(viewportControlLayout);

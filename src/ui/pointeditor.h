@@ -2,6 +2,7 @@
 #define POINTEDITOR_H
 
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QWidget>
@@ -17,39 +18,29 @@ public:
   PointInfo getPointInfo() const;
   void setPointInfo(PointInfo PointInfo);
 
+signals:
+  void pointChanged(const PointInfo &info);
+
 public slots:
   void disableUI();
   void enableUI();
 
 private:
   void createLayout();
+  void createConnections();
 
   PointInfo mPointInfo;
 
-  // Constraints settings
-  QComboBox *m_constraintsByAxis = nullptr;
-  //
+  // Coordinate
+  QDoubleSpinBox *mXCoordinateSpinBox = nullptr;
+  QDoubleSpinBox *mYCoordinateSpinBox = nullptr;
 
-  // Material settings
-  QLineEdit *m_ETextEdit = nullptr;
-  QLineEdit *m_vTextEdit = nullptr;
-  //
+  // Displacement
+  QDoubleSpinBox *mUDisplacementSpinBox = nullptr;
+  QDoubleSpinBox *mVDisplacementSpinBox = nullptr;
 
-  // Comptue buutton
-  QPushButton *m_computeButton = nullptr;
-  //
-
-  // Displacment settings
-  QLineEdit *m_uDisplacmentTextEdit = nullptr;
-  QLineEdit *m_vDisplacmentTextEdit = nullptr;
-  //
-
-  // Point coord settings
-  QLineEdit *m_xCoordTextEdit = nullptr;
-  QLineEdit *m_yCoordTextEdit = nullptr;
-  //
-
-  QPushButton *m_applySettings = nullptr;
+  // Constraint
+  QComboBox *mConstraints = nullptr;
 };
 
 #endif // POINTEDITOR_H
