@@ -30,7 +30,7 @@ void PointEditor::enableUI() {
 }
 
 void PointEditor::createLayout() {
-  QGridLayout *mainGrid = new QGridLayout();
+  QGridLayout *mainGrid = new QGridLayout(this);
   mainGrid->setAlignment(Qt::AlignCenter);
 
   {
@@ -45,6 +45,9 @@ void PointEditor::createLayout() {
     mainGrid->addWidget(xLabel, 0, 1, Qt::AlignVCenter | Qt::AlignRight);
 
     mXCoordinateSpinBox = new QDoubleSpinBox;
+    mXCoordinateSpinBox->setSingleStep(0.1);
+    mXCoordinateSpinBox->setMaximum(std::numeric_limits<double>::max());
+    mXCoordinateSpinBox->setMinimum(std::numeric_limits<double>::lowest());
     mainGrid->addWidget(mXCoordinateSpinBox, 0, 2, Qt::AlignCenter);
 
     // y
@@ -53,6 +56,9 @@ void PointEditor::createLayout() {
     mainGrid->addWidget(yLabel, 1, 1, Qt::AlignVCenter | Qt::AlignRight);
 
     mYCoordinateSpinBox = new QDoubleSpinBox;
+    mYCoordinateSpinBox->setSingleStep(0.1);
+    mYCoordinateSpinBox->setMaximum(std::numeric_limits<double>::max());
+    mYCoordinateSpinBox->setMinimum(std::numeric_limits<double>::lowest());
     mainGrid->addWidget(mYCoordinateSpinBox, 1, 2, Qt::AlignCenter);
   }
 
@@ -68,6 +74,9 @@ void PointEditor::createLayout() {
     mainGrid->addWidget(uLabel, 2, 1, Qt::AlignVCenter | Qt::AlignRight);
 
     mUDisplacementSpinBox = new QDoubleSpinBox;
+    mUDisplacementSpinBox->setSingleStep(0.1);
+    mUDisplacementSpinBox->setMaximum(std::numeric_limits<double>::max());
+    mUDisplacementSpinBox->setMinimum(std::numeric_limits<double>::lowest());
     mainGrid->addWidget(mUDisplacementSpinBox, 2, 2, Qt::AlignCenter);
 
     // v
@@ -76,6 +85,9 @@ void PointEditor::createLayout() {
     mainGrid->addWidget(vLabel, 3, 1, Qt::AlignVCenter | Qt::AlignRight);
 
     mVDisplacementSpinBox = new QDoubleSpinBox;
+    mVDisplacementSpinBox->setSingleStep(0.1);
+    mVDisplacementSpinBox->setMaximum(std::numeric_limits<double>::max());
+    mVDisplacementSpinBox->setMinimum(std::numeric_limits<double>::lowest());
     mainGrid->addWidget(mVDisplacementSpinBox, 3, 2, Qt::AlignCenter);
   }
 
@@ -95,8 +107,6 @@ void PointEditor::createLayout() {
     mConstraints->addItems(types);
     mainGrid->addWidget(mConstraints, 4, 1, 4, 2, Qt::AlignCenter);
   }
-
-  this->setLayout(mainGrid);
 }
 
 void PointEditor::createConnections() {
@@ -104,45 +114,53 @@ void PointEditor::createConnections() {
   QObject::connect(mXCoordinateSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mPointInfo.coordinate.setX(value);
+                     mInfo.coordinate.setX(value);
 
-                     emit pointChanged(mPointInfo);
+                     emit pointInfoChanged(mInfo);
                    });
   QObject::connect(mYCoordinateSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mPointInfo.coordinate.setY(value);
+                     mInfo.coordinate.setY(value);
 
-                     emit pointChanged(mPointInfo);
+                     emit pointInfoChanged(mInfo);
                    });
 
   // Displacement
   QObject::connect(mUDisplacementSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mPointInfo.displacement.setX(value);
+                     mInfo.displacement.setX(value);
 
-                     emit pointChanged(mPointInfo);
+                     emit pointInfoChanged(mInfo);
                    });
   QObject::connect(mVDisplacementSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mPointInfo.displacement.setY(value);
+                     mInfo.displacement.setY(value);
 
-                     emit pointChanged(mPointInfo);
+                     emit pointInfoChanged(mInfo);
                    });
 
   // Constraint
   QObject::connect(mConstraints,
                    qOverload<int>(&QComboBox::currentIndexChanged), this,
                    [this](const int &value) {
-                     mPointInfo.constraintType =
+                     mInfo.constraintType =
                          static_cast<StiffnessUtils::Constraints::Type>(value);
 
-                     emit pointChanged(mPointInfo);
+                     emit pointInfoChanged(mInfo);
                    });
 }
 
-PointInfo PointEditor::getPointInfo() const { return mPointInfo; }
+PointInfo PointEditor::getPointInfo() const { return mInfo; }
 
-void PointEditor::setPointInfo(PointInfo PointInfo) { mPointInfo = PointInfo; }
+void PointEditor::setPointInfo(PointInfo PointInfo) {
+  mInfo = PointInfo;
+
+  mXCoordinateSpinBox->setValue(mInfo.coordinate.x());
+  mYCoordinateSpinBox->setValue(mInfo.coordinate.y());
+  mUDisplacementSpinBox->setValue(mInfo.displacement.x());
+  mVDisplacementSpinBox->setValue(mInfo.displacement.y());
+  mConstraints->setCurrentIndex(static_cast<int>(mInfo.constraintType));
+}

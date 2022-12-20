@@ -19,7 +19,7 @@ public:
   void setPointInfo(PointInfo PointInfo);
 
 signals:
-  void pointChanged(const PointInfo &info);
+  void pointInfoChanged(const PointInfo &info);
 
 public slots:
   void disableUI();
@@ -29,7 +29,7 @@ private:
   void createLayout();
   void createConnections();
 
-  PointInfo mPointInfo;
+  PointInfo mInfo;
 
   // Coordinate
   QDoubleSpinBox *mXCoordinateSpinBox = nullptr;
