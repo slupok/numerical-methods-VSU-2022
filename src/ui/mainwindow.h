@@ -9,6 +9,8 @@
 
 #include "stiffnessutils.h"
 
+#include <DockManager.h>
+
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -36,7 +38,6 @@ private slots:
 
 private:
   void createLayout();
-  void createMenuBar();
   void createConnections();
 
   void updateViewport();
@@ -44,7 +45,6 @@ private:
   Viewport *mViewport = nullptr;
   PointEditor *mPointEditor = nullptr;
   MaterialEditor *mMaterialEditor = nullptr;
-  QPushButton *mComputeButton = nullptr;
 
   LoaderThread mLoader;
 
@@ -56,5 +56,7 @@ private:
   QVector<StiffnessUtils::Constraints> m_constraints;
 
   int m_selectedPointIndex = -1;
+
+  ads::CDockManager *mDockManager;
 };
 #endif // MAINWINDOW_H

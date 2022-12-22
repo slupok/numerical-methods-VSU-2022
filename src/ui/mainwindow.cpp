@@ -8,58 +8,80 @@
 #include <iostream>
 #include <vector>
 
+#include <DockAreaWidget.h>
+
 #include "common/pointinfo.h"
 #include "triangulationutils.h"
 #include "viewport.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   this->createLayout();
-  this->createMenuBar();
   this->createConnections();
 
   mPointEditor->disableUI();
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() { mDockManager->deleteLater(); }
 
 void MainWindow::createLayout() {
-  mViewport = new Viewport(this);
+  // menu
 
-  QVBoxLayout *editorsLayout = new QVBoxLayout();
-  editorsLayout->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-  {
-    mMaterialEditor = new MaterialEditor(this);
-    editorsLayout->addWidget(mMaterialEditor, 0,
-                             Qt::AlignVCenter | Qt::AlignRight);
-
-    mPointEditor = new PointEditor(this);
-    editorsLayout->addWidget(mPointEditor, 0,
-                             Qt::AlignVCenter | Qt::AlignRight);
-
-    mComputeButton = new QPushButton("Compute");
-    editorsLayout->addWidget(mComputeButton, 0, Qt::AlignCenter);
-  }
-
-  QHBoxLayout *viewportControlLayout = new QHBoxLayout;
-  viewportControlLayout->addWidget(mViewport, 0);
-  viewportControlLayout->addLayout(editorsLayout, 0);
-
-  viewportControlLayout->setAlignment(Qt::AlignCenter);
-
-  QWidget *centralWidget = new QWidget();
-  centralWidget->setLayout(viewportControlLayout);
-
-  setCentralWidget(centralWidget);
-}
-
-void MainWindow::createMenuBar() {
   QMenuBar *menuBar = this->menuBar();
 
-  QMenu *fileMenu = menuBar->addMenu("File");
+  {
+    QMenu *fileMenu = menuBar->addMenu("File");
 
-  QAction *openAction = fileMenu->addAction("Open");
+    QAction *openAction = fileMenu->addAction("Open");
+    openAction->setShortcut(Qt::CTRL | Qt::Key_O);
 
-  QObject::connect(openAction, &QAction::triggered, this, &MainWindow::open);
+    QObject::connect(openAction, &QAction::triggered, this, &MainWindow::open);
+  }
+
+  {
+    QMenu *solutionMenu = menuBar->addMenu("Solution");
+
+    QAction *solveAction = solutionMenu->addAction("Solve");
+    solveAction->setShortcut(Qt::CTRL | Qt::Key_C);
+
+    QObject::connect(solveAction, &QAction::triggered, this,
+                     &MainWindow::computeDisplacment);
+  }
+
+  QMenu *layoutMenu = menuBar->addMenu("Layout");
+
+  // layout
+
+  mDockManager = new ads::CDockManager(this);
+
+  mViewport = new Viewport();
+  ads::CDockWidget *viewportDock = new ads::CDockWidget("Viewport");
+  viewportDock->setWidget(mViewport);
+  ads::CDockAreaWidget *viewportDockArea =
+      mDockManager->setCentralWidget(viewportDock);
+  viewportDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
+
+  mMaterialEditor = new MaterialEditor();
+  ads::CDockWidget *materialEditorDock =
+      new ads::CDockWidget("Material Editor");
+  materialEditorDock->setWidget(mMaterialEditor);
+  materialEditorDock->setMinimumSizeHintMode(
+      ads::CDockWidget::MinimumSizeHintFromContent);
+  materialEditorDock->setMinimumSize(200, 400);
+  materialEditorDock->resize(200, 400);
+  ads::CDockAreaWidget *materialEditorDockArea =
+      mDockManager->addDockWidget(ads::RightDockWidgetArea, materialEditorDock);
+  layoutMenu->addAction(materialEditorDock->toggleViewAction());
+
+  mPointEditor = new PointEditor();
+  ads::CDockWidget *pointEditorDock = new ads::CDockWidget("Point Editor");
+  pointEditorDock->setWidget(mPointEditor);
+  pointEditorDock->setMinimumSizeHintMode(
+      ads::CDockWidget::MinimumSizeHintFromContent);
+  pointEditorDock->setMinimumSize(200, 400);
+  pointEditorDock->resize(200, 400);
+  mDockManager->addDockWidget(ads::BottomDockWidgetArea, pointEditorDock,
+                              materialEditorDockArea);
+  layoutMenu->addAction(pointEditorDock->toggleViewAction());
 }
 
 void MainWindow::createConnections() {
@@ -71,9 +93,6 @@ void MainWindow::createConnections() {
 
   QObject::connect(mViewport, &Viewport::onPointSelected, this,
                    &MainWindow::pointSelected);
-
-  QObject::connect(mComputeButton, &QPushButton::pressed, this,
-                   &MainWindow::computeDisplacment);
 }
 
 void MainWindow::updateViewport() {
