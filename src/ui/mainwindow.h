@@ -50,9 +50,6 @@ private:
 
   LoaderThread mLoader;
 
-  // Data
-  Figure mFigure;
-
   QVector<StiffnessUtils::Displacment> m_displacments;
   QVector<StiffnessUtils::Constraints> m_constraints;
 

@@ -104,10 +104,7 @@ void MainWindow::createConnections() {
                    &MainWindow::pointSelected);
 }
 
-void MainWindow::updateViewport() {
-  mViewport->setFigure(mFigure);
-  mViewport->update();
-}
+void MainWindow::updateViewport() { mViewport->update(); }
 
 void MainWindow::pointSelected(const int pointIndex) {
   qDebug() << pointIndex;
@@ -121,8 +118,10 @@ void MainWindow::pointSelected(const int pointIndex) {
 
   m_selectedPointIndex = pointIndex;
 
-  const double x = mFigure.points[pointIndex].x();
-  const double y = mFigure.points[pointIndex].y();
+  const auto figure = mViewport->getFigure();
+
+  const double x = figure.points[pointIndex].x();
+  const double y = figure.points[pointIndex].y();
 
   Point point;
   point.coordinate.setX(x);
@@ -160,7 +159,9 @@ void MainWindow::pointInfoChanged(const Point &point) {
     return;
   }
 
-  mFigure.points[m_selectedPointIndex] = point.coordinate;
+  auto figure = mViewport->getFigure();
+
+  figure.points[m_selectedPointIndex] = point.coordinate;
 
   bool displacmentFound = false;
   bool constraintsFound = false;
@@ -202,16 +203,19 @@ void MainWindow::pointInfoChanged(const Point &point) {
     m_constraints.push_back(constraints);
   }
 
+  mViewport->setFigure(figure);
   this->updateViewport();
 }
 
 void MainWindow::computeDisplacment() {
   const auto info = mMaterialEditor->getMaterialInfo();
 
-  StiffnessUtils::compute(info.e, info.v, mFigure.points,
-                          mFigure.triangleIndices, m_displacments,
-                          m_constraints);
+  auto figure = mViewport->getFigure();
 
+  StiffnessUtils::compute(info.e, info.v, figure.points, figure.triangleIndices,
+                          m_displacments, m_constraints);
+
+  mViewport->setFigure(figure);
   this->updateViewport();
 }
 
@@ -242,9 +246,12 @@ void MainWindow::loaded() {
 
   std::pair<QVector<int>, QVector<QPointF>> indicesPoints =
       TriangulationUtils::triangulationPolygon(points, 2);
-  mFigure.triangleIndices = indicesPoints.first;
-  mFigure.points = indicesPoints.second;
 
+  Figure figure;
+  figure.triangleIndices = indicesPoints.first;
+  figure.points = indicesPoints.second;
+
+  mViewport->setFigure(figure);
   this->updateViewport();
 }
 
