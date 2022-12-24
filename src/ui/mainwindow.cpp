@@ -97,11 +97,20 @@ void MainWindow::createConnections() {
   QObject::connect(&mLoader, &LoaderThread::failed, this, &MainWindow::failed);
   QObject::connect(&mLoader, &LoaderThread::loaded, this, &MainWindow::loaded);
 
-  QObject::connect(mPointEditor, &PointEditor::pointInfoChanged, this,
+  QObject::connect(mPointEditor, &PointEditor::pointChanged, this,
                    &MainWindow::pointInfoChanged);
 
   QObject::connect(mViewport, &Viewport::onPointSelected, this,
                    &MainWindow::pointSelected);
+
+  QObject::connect(mViewport, &Viewport::pointCoordinateChanged, this,
+                   [this](const QPointF &coordinate) {
+                     auto point = this->mPointEditor->getPoint();
+
+                     point.coordinate = coordinate;
+
+                     this->mPointEditor->setPoint(point);
+                   });
 }
 
 void MainWindow::updateViewport() { mViewport->update(); }

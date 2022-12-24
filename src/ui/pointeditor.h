@@ -16,14 +16,15 @@ public:
                        Qt::WindowFlags f = Qt::WindowFlags());
 
   Point getPoint() const;
-  void setPoint(const Point &point);
 
 signals:
-  void pointInfoChanged(const Point &point);
+  void pointChanged(const Point &point);
 
 public slots:
   void disableUI();
   void enableUI();
+
+  void setPoint(const Point &point);
 
 private:
   void createLayout();

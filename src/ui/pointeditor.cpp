@@ -116,14 +116,14 @@ void PointEditor::createConnections() {
                    [this](const double &value) {
                      mPoint.coordinate.setX(value);
 
-                     emit pointInfoChanged(mPoint);
+                     emit pointChanged(mPoint);
                    });
   QObject::connect(mYCoordinateSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
                      mPoint.coordinate.setY(value);
 
-                     emit pointInfoChanged(mPoint);
+                     emit pointChanged(mPoint);
                    });
 
   // Displacement
@@ -132,14 +132,14 @@ void PointEditor::createConnections() {
                    [this](const double &value) {
                      mPoint.displacement.setX(value);
 
-                     emit pointInfoChanged(mPoint);
+                     emit pointChanged(mPoint);
                    });
   QObject::connect(mVDisplacementSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
                      mPoint.displacement.setY(value);
 
-                     emit pointInfoChanged(mPoint);
+                     emit pointChanged(mPoint);
                    });
 
   // Constraint
@@ -149,7 +149,7 @@ void PointEditor::createConnections() {
                      mPoint.constraintType =
                          static_cast<StiffnessUtils::Constraints::Type>(value);
 
-                     emit pointInfoChanged(mPoint);
+                     emit pointChanged(mPoint);
                    });
 }
 
