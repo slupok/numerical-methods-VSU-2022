@@ -1,95 +1,121 @@
 #include "viewport.h"
 
+#include <QPolygonF>
+
 Viewport::Viewport(QWidget *parent) : QGraphicsView(parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing);
 
-  m_scene = new QGraphicsScene();
-  setScene(m_scene);
-
-  scale(5, 5);
+  setScene(&mScene);
 }
 
-void Viewport::setPoints(const QVector<QPointF> &points) { m_points = points; }
-
-void Viewport::setTriangleIndices(const QVector<int> &triangleIndices) {
-  m_triangleIndices = triangleIndices;
-}
+Viewport::~Viewport() {}
 
 void Viewport::update() {
-  m_scene->clear();
+  mScene.clear();
 
   drawTriangles();
   drawPoints();
-}
 
-int Viewport::selectedPoint() const { return m_pointSelected; }
+  QGraphicsView::update();
+}
 
 void Viewport::mousePressEvent(QMouseEvent *event) {
   const QPointF mousePosition =
-      mapToScene(event->localPos().toPoint()) * 1.f / m_scaleFactor;
+      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
 
-  for (int pointIndex = 0; pointIndex < m_points.size(); ++pointIndex) {
-    QPointF point = m_points[pointIndex];
+  for (int pointIndex = 0; pointIndex < mFigure.points.size(); ++pointIndex) {
+    QPointF point = mFigure.points[pointIndex];
 
-    if ((mousePosition - point).manhattanLength() <= m_radiusSearch) {
-      m_pointSelected = pointIndex;
-      emit onPointSelected(m_pointSelected);
+    if ((mousePosition - point).manhattanLength() <= mRadiusSearch) {
+      mPointSelected = pointIndex;
+      emit onPointSelected(mPointSelected);
       return;
     }
   }
 
-  m_pointSelected = -1;
+  mPointSelected = -1;
 }
 
-void Viewport::wheelEvent(QWheelEvent *event) {
-  if (event->delta() < 0)
-    m_currentZoom += 1;
-  else
-    m_currentZoom -= 1;
-}
+void Viewport::wheelEvent(QWheelEvent *) { this->update(); }
 
 void Viewport::drawPoints() {
-  if (!m_scene)
-    return;
+  QPen pointPen(mPointColor);
+  QBrush pointBrush(mPointColor);
 
-  QPen pointPen = QPen(m_pointColor);
+  for (int i = 0; i < mFigure.points.size(); ++i) {
+    QPointF pointInLocalCoord = mFigure.points[i] * mScaleFactor;
 
-  for (int pointIndex = 0; pointIndex < m_points.size(); ++pointIndex) {
-    QPointF pointInLocalCoord = m_points[pointIndex] * m_scaleFactor;
+    mScene.addEllipse(pointInLocalCoord.x() - mPointSize,
+                      pointInLocalCoord.y() - mPointSize, mPointSize * 2,
+                      mPointSize * 2, pointPen, pointBrush);
+  }
 
-    m_scene->addEllipse(pointInLocalCoord.x() - m_pointSize,
-                        pointInLocalCoord.y() - m_pointSize, m_pointSize * 2,
-                        m_pointSize * 2, pointPen, QBrush(m_pointColor));
+  if (mPointSelected != -1) {
+    QPen selectedPointPen(mSelectedPointColor);
+    QBrush selectedPointBrush(mSelectedPointColor);
+
+    QPointF pointInLocalCoord = mFigure.points[mPointSelected] * mScaleFactor;
+
+    mScene.addEllipse(pointInLocalCoord.x() - mPointSize,
+                      pointInLocalCoord.y() - mPointSize, mPointSize * 2,
+                      mPointSize * 2, selectedPointPen, selectedPointBrush);
   }
 }
 
 void Viewport::drawTriangles() {
-  if (!m_scene)
-    return;
+  QPen linePen = QPen(mLineColor);
 
-  QPen linePen = QPen(m_lineColor);
-
-  for (int pointIndex = 0; pointIndex < m_triangleIndices.size() - 2;
+  for (int pointIndex = 0; pointIndex < mFigure.triangleIndices.size() - 2;
        pointIndex += 3) {
     const double x1 =
-        m_points[m_triangleIndices[pointIndex]].x() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex]].x() * mScaleFactor;
     const double y1 =
-        m_points[m_triangleIndices[pointIndex]].y() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex]].y() * mScaleFactor;
 
     const double x2 =
-        m_points[m_triangleIndices[pointIndex + 1]].x() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex + 1]].x() *
+        mScaleFactor;
     const double y2 =
-        m_points[m_triangleIndices[pointIndex + 1]].y() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex + 1]].y() *
+        mScaleFactor;
 
     const double x3 =
-        m_points[m_triangleIndices[pointIndex + 2]].x() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex + 2]].x() *
+        mScaleFactor;
     const double y3 =
-        m_points[m_triangleIndices[pointIndex + 2]].y() * m_scaleFactor;
+        mFigure.points[mFigure.triangleIndices[pointIndex + 2]].y() *
+        mScaleFactor;
 
-    m_scene->addLine(x1, y1, x2, y2, linePen);
-    m_scene->addLine(x2, y2, x3, y3, linePen);
-    m_scene->addLine(x3, y3, x1, y1, linePen);
+    mScene.addLine(x1, y1, x2, y2, linePen);
+    mScene.addLine(x2, y2, x3, y3, linePen);
+    mScene.addLine(x3, y3, x1, y1, linePen);
   }
 }
+
+const Figure &Viewport::getFigure() const { return mFigure; }
+
+void Viewport::setFigure(const Figure &Figure) { mFigure = Figure; }
+
+void Viewport::fitInScreen() {
+  this->fitInView(mScene.sceneRect(), Qt::KeepAspectRatio);
+}
+
+const QColor &Viewport::getPointColor() const { return mPointColor; }
+
+void Viewport::setPointColor(const QColor &PointColor) {
+  mPointColor = PointColor;
+}
+
+const QColor &Viewport::getSelectedPointColor() const {
+  return mSelectedPointColor;
+}
+
+void Viewport::setSelectedPointColor(const QColor &SelectedPointColor) {
+  mSelectedPointColor = SelectedPointColor;
+}
+
+const QColor &Viewport::getLineColor() const { return mLineColor; }
+
+void Viewport::setLineColor(const QColor &LineColor) { mLineColor = LineColor; }

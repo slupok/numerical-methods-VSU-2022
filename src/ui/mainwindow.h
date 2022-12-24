@@ -9,6 +9,8 @@
 
 #include "stiffnessutils.h"
 
+#include "common/figure.h"
+
 #include <DockManager.h>
 
 #include <QComboBox>
@@ -27,7 +29,7 @@ public:
 
 private slots:
   void pointSelected(const int pointIndex);
-  void pointInfoChanged(const PointInfo &info);
+  void pointInfoChanged(const Point &point);
 
   void computeDisplacment();
 
@@ -49,8 +51,7 @@ private:
   LoaderThread mLoader;
 
   // Data
-  QVector<QPointF> m_points;
-  QVector<int> m_indices;
+  Figure mFigure;
 
   QVector<StiffnessUtils::Displacment> m_displacments;
   QVector<StiffnessUtils::Constraints> m_constraints;

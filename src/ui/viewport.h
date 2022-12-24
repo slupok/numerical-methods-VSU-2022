@@ -7,17 +7,30 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 
+#include "common/figure.h"
+
 class Viewport : public QGraphicsView {
   Q_OBJECT
 public:
-  explicit Viewport(QWidget *parent = nullptr);
-
-  void setPoints(const QVector<QPointF> &points);
-  void setTriangleIndices(const QVector<int> &triangleIndices);
+  Viewport(QWidget *parent = nullptr);
+  ~Viewport();
 
   void update();
 
-  int selectedPoint() const;
+  const QColor &getLineColor() const;
+  void setLineColor(const QColor &LineColor);
+
+  const QColor &getSelectedPointColor() const;
+  void setSelectedPointColor(const QColor &SelectedPointColor);
+
+  const QColor &getPointColor() const;
+  void setPointColor(const QColor &PointColor);
+
+  const Figure &getFigure() const;
+  void setFigure(const Figure &Figure);
+
+public slots:
+  void fitInScreen();
 
 signals:
   void onPointSelected(const int pointIndex);
@@ -30,23 +43,19 @@ private:
   void drawPoints();
   void drawTriangles();
 
-  QGraphicsScene *m_scene = nullptr;
+  QGraphicsScene mScene;
 
-  const float m_radiusSearch = 0.1f;
-  int m_pointSelected = -1;
+  const float mRadiusSearch = 0.1f;
+  int mPointSelected = -1;
 
-  const int m_pointSize = 2;
-  const float m_scaleFactor = 30.0f;
+  const int mPointSize = 2;
+  const float mScaleFactor = 30.0f;
 
-  const QColor m_pointColor = Qt::green;
-  const QColor m_selectedPointColor = Qt::red;
-  const QColor m_lineColor = Qt::blue;
+  QColor mPointColor = Qt::green;
+  QColor mSelectedPointColor = Qt::red;
+  QColor mLineColor = Qt::blue;
 
-  QVector<QPointF> m_points;
-  QVector<int> m_triangleIndices;
-
-  float m_currentZoom = 0.0f;
-  const float m_zoomFactor = 0.25f;
+  Figure mFigure;
 };
 
 #endif // VIEWPORT_H

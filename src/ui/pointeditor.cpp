@@ -114,53 +114,53 @@ void PointEditor::createConnections() {
   QObject::connect(mXCoordinateSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mInfo.coordinate.setX(value);
+                     mPoint.coordinate.setX(value);
 
-                     emit pointInfoChanged(mInfo);
+                     emit pointInfoChanged(mPoint);
                    });
   QObject::connect(mYCoordinateSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mInfo.coordinate.setY(value);
+                     mPoint.coordinate.setY(value);
 
-                     emit pointInfoChanged(mInfo);
+                     emit pointInfoChanged(mPoint);
                    });
 
   // Displacement
   QObject::connect(mUDisplacementSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mInfo.displacement.setX(value);
+                     mPoint.displacement.setX(value);
 
-                     emit pointInfoChanged(mInfo);
+                     emit pointInfoChanged(mPoint);
                    });
   QObject::connect(mVDisplacementSpinBox,
                    qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                    [this](const double &value) {
-                     mInfo.displacement.setY(value);
+                     mPoint.displacement.setY(value);
 
-                     emit pointInfoChanged(mInfo);
+                     emit pointInfoChanged(mPoint);
                    });
 
   // Constraint
   QObject::connect(mConstraints,
                    qOverload<int>(&QComboBox::currentIndexChanged), this,
                    [this](const int &value) {
-                     mInfo.constraintType =
+                     mPoint.constraintType =
                          static_cast<StiffnessUtils::Constraints::Type>(value);
 
-                     emit pointInfoChanged(mInfo);
+                     emit pointInfoChanged(mPoint);
                    });
 }
 
-PointInfo PointEditor::getPointInfo() const { return mInfo; }
+Point PointEditor::getPoint() const { return mPoint; }
 
-void PointEditor::setPointInfo(PointInfo PointInfo) {
-  mInfo = PointInfo;
+void PointEditor::setPoint(const Point &point) {
+  mPoint = point;
 
-  mXCoordinateSpinBox->setValue(mInfo.coordinate.x());
-  mYCoordinateSpinBox->setValue(mInfo.coordinate.y());
-  mUDisplacementSpinBox->setValue(mInfo.displacement.x());
-  mVDisplacementSpinBox->setValue(mInfo.displacement.y());
-  mConstraints->setCurrentIndex(static_cast<int>(mInfo.constraintType));
+  mXCoordinateSpinBox->setValue(mPoint.coordinate.x());
+  mYCoordinateSpinBox->setValue(mPoint.coordinate.y());
+  mUDisplacementSpinBox->setValue(mPoint.displacement.x());
+  mVDisplacementSpinBox->setValue(mPoint.displacement.y());
+  mConstraints->setCurrentIndex(static_cast<int>(mPoint.constraintType));
 }
