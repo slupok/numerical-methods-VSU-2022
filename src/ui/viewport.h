@@ -45,8 +45,9 @@ protected:
   virtual void wheelEvent(QWheelEvent *event) override;
 
 private:
-  void drawPoints();
-  void drawTriangles();
+  void drawFigure(const Figure &figure);
+  void drawPoints(const Figure &figure);
+  void drawTriangles(const Figure &figure);
   void drawAxes();
 
   QPointF toScene(const QPointF &screen);
