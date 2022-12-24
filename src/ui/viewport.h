@@ -64,6 +64,7 @@ private:
   QColor mPointColor = Qt::green;
   QColor mSelectedPointColor = Qt::red;
   QColor mLineColor = Qt::blue;
+  QColor mAxisColor = Qt::black;
 
   Figure mFigure;
 };

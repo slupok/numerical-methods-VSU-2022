@@ -8,6 +8,8 @@ Viewport::Viewport(QWidget *parent) : QGraphicsView(parent) {
   setRenderHint(QPainter::Antialiasing);
 
   setScene(&mScene);
+
+  scale(1, -1);
 }
 
 Viewport::~Viewport() {}
@@ -66,7 +68,7 @@ void Viewport::drawTriangles() {
   }
 }
 
-void Viewport::drawAxes() { const auto size = this->size(); }
+void Viewport::drawAxes() {}
 
 QPointF Viewport::toScene(const QPointF &screen) {
   return mapToScene(screen.toPoint()) * 1.f / mScaleFactor;
@@ -126,6 +128,8 @@ void Viewport::wheelEvent(QWheelEvent *event) {
   } else {
     this->scale(0.9, 0.9);
   }
+
+  this->update();
 }
 
 const QColor &Viewport::getPointColor() const { return mPointColor; }
