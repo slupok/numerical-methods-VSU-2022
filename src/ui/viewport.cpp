@@ -21,25 +21,6 @@ void Viewport::update() {
   QGraphicsView::update();
 }
 
-void Viewport::mousePressEvent(QMouseEvent *event) {
-  const QPointF mousePosition =
-      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
-
-  for (int pointIndex = 0; pointIndex < mFigure.points.size(); ++pointIndex) {
-    QPointF point = mFigure.points[pointIndex];
-
-    if ((mousePosition - point).manhattanLength() <= mRadiusSearch) {
-      mPointSelected = pointIndex;
-      emit onPointSelected(mPointSelected);
-      return;
-    }
-  }
-
-  mPointSelected = -1;
-}
-
-void Viewport::wheelEvent(QWheelEvent *) { this->update(); }
-
 void Viewport::drawPoints() {
   QPen pointPen(mPointColor);
   QBrush pointBrush(mPointColor);
@@ -69,28 +50,18 @@ void Viewport::drawTriangles() {
 
   for (int pointIndex = 0; pointIndex < mFigure.triangleIndices.size() - 2;
        pointIndex += 3) {
-    const double x1 =
-        mFigure.points[mFigure.triangleIndices[pointIndex]].x() * mScaleFactor;
-    const double y1 =
-        mFigure.points[mFigure.triangleIndices[pointIndex]].y() * mScaleFactor;
+    const auto a =
+        mFigure.points[mFigure.triangleIndices[pointIndex]] * mScaleFactor;
 
-    const double x2 =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 1]].x() *
-        mScaleFactor;
-    const double y2 =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 1]].y() *
-        mScaleFactor;
+    const auto b =
+        mFigure.points[mFigure.triangleIndices[pointIndex + 1]] * mScaleFactor;
 
-    const double x3 =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 2]].x() *
-        mScaleFactor;
-    const double y3 =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 2]].y() *
-        mScaleFactor;
+    const auto c =
+        mFigure.points[mFigure.triangleIndices[pointIndex + 2]] * mScaleFactor;
 
-    mScene.addLine(x1, y1, x2, y2, linePen);
-    mScene.addLine(x2, y2, x3, y3, linePen);
-    mScene.addLine(x3, y3, x1, y1, linePen);
+    mScene.addLine(QLineF(a, b), linePen);
+    mScene.addLine(QLineF(b, c), linePen);
+    mScene.addLine(QLineF(c, a), linePen);
   }
 }
 
@@ -101,6 +72,46 @@ void Viewport::setFigure(const Figure &Figure) { mFigure = Figure; }
 void Viewport::fitInScreen() {
   this->fitInView(mScene.sceneRect(), Qt::KeepAspectRatio);
 }
+
+void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {}
+
+void Viewport::mouseMoveEvent(QMouseEvent *event) {
+  if (mPointSelected == invalidIndex) {
+    return;
+  }
+
+  const QPointF mousePosition =
+      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
+
+  mFigure.points[mPointSelected] = mousePosition;
+
+  pointCoordinateChanged(mFigure.points[mPointSelected]);
+
+  this->QGraphicsView::mouseMoveEvent(event);
+
+  this->update();
+}
+
+void Viewport::mousePressEvent(QMouseEvent *event) {
+  const QPointF mousePosition =
+      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
+
+  for (int pointIndex = 0; pointIndex < mFigure.points.size(); ++pointIndex) {
+    QPointF point = mFigure.points[pointIndex];
+
+    if ((mousePosition - point).manhattanLength() <= mRadiusSearch) {
+      mPointSelected = pointIndex;
+      emit onPointSelected(mPointSelected);
+      return;
+    }
+  }
+
+  mPointSelected = -1;
+}
+
+void Viewport::mouseReleaseEvent(QMouseEvent *event) {}
+
+void Viewport::wheelEvent(QWheelEvent *event) {}
 
 const QColor &Viewport::getPointColor() const { return mPointColor; }
 

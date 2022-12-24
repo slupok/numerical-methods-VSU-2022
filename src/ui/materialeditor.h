@@ -16,7 +16,7 @@ public:
   void setMaterialInfo(const Material &Info);
 
 signals:
-  void materialInfoChanged(const Material &info);
+  void materialChanged(const Material &info);
 
 public slots:
   void disableUI();

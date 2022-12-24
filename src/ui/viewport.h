@@ -34,10 +34,14 @@ public slots:
 
 signals:
   void onPointSelected(const int pointIndex);
+  void pointCoordinateChanged(const QPointF &point);
 
 protected:
-  void mousePressEvent(QMouseEvent *event) override;
-  void wheelEvent(QWheelEvent *event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent *event) override;
+  virtual void wheelEvent(QWheelEvent *event) override;
 
 private:
   void drawPoints();
@@ -45,8 +49,10 @@ private:
 
   QGraphicsScene mScene;
 
+  static constexpr const int invalidIndex = -1;
+
   const float mRadiusSearch = 0.1f;
-  int mPointSelected = -1;
+  int mPointSelected = invalidIndex;
 
   const int mPointSize = 2;
   const float mScaleFactor = 30.0f;

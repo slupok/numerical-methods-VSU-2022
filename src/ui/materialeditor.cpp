@@ -45,13 +45,13 @@ void MaterialEditor::createConnections() {
                    this, [this](const double &value) {
                      mMaterial.e = static_cast<float>(value);
 
-                     emit materialInfoChanged(mMaterial);
+                     emit materialChanged(mMaterial);
                    });
   QObject::connect(mVSpinBox, qOverload<double>(&QDoubleSpinBox::valueChanged),
                    this, [this](const double &value) {
                      mMaterial.v = static_cast<float>(value);
 
-                     emit materialInfoChanged(mMaterial);
+                     emit materialChanged(mMaterial);
                    });
 }
 
