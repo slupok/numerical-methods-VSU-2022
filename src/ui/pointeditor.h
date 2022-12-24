@@ -7,7 +7,7 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "common/pointinfo.h"
+#include "common/point.h"
 
 class PointEditor : public QWidget {
   Q_OBJECT
@@ -15,11 +15,11 @@ public:
   explicit PointEditor(QWidget *parent = nullptr,
                        Qt::WindowFlags f = Qt::WindowFlags());
 
-  PointInfo getPointInfo() const;
-  void setPointInfo(PointInfo PointInfo);
+  Point getPoint() const;
+  void setPoint(const Point &point);
 
 signals:
-  void pointInfoChanged(const PointInfo &info);
+  void pointInfoChanged(const Point &point);
 
 public slots:
   void disableUI();
@@ -29,7 +29,7 @@ private:
   void createLayout();
   void createConnections();
 
-  PointInfo mInfo;
+  Point mPoint;
 
   // Coordinate
   QDoubleSpinBox *mXCoordinateSpinBox = nullptr;

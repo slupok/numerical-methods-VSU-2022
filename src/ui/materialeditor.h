@@ -4,7 +4,7 @@
 #include <QDoubleSpinBox>
 #include <QWidget>
 
-#include "common/materialinfo.h"
+#include "common/material.h"
 
 class MaterialEditor : public QWidget {
   Q_OBJECT
@@ -12,11 +12,11 @@ public:
   explicit MaterialEditor(QWidget *parent = nullptr,
                           Qt::WindowFlags f = Qt::WindowFlags());
 
-  const MaterialInfo &getMaterialInfo() const;
-  void setMaterialInfo(const MaterialInfo &Info);
+  const Material &getMaterialInfo() const;
+  void setMaterialInfo(const Material &Info);
 
 signals:
-  void materialInfoChanged(const MaterialInfo &info);
+  void materialInfoChanged(const Material &info);
 
 public slots:
   void disableUI();
@@ -30,7 +30,7 @@ private:
   QDoubleSpinBox *mESpinBox = nullptr;
   QDoubleSpinBox *mVSpinBox = nullptr;
 
-  MaterialInfo mInfo;
+  Material mMaterial;
 };
 
 #endif // MATERIALEDITOR_H

@@ -43,25 +43,25 @@ void MaterialEditor::createLayout() {
 void MaterialEditor::createConnections() {
   QObject::connect(mESpinBox, qOverload<double>(&QDoubleSpinBox::valueChanged),
                    this, [this](const double &value) {
-                     mInfo.e = static_cast<float>(value);
+                     mMaterial.e = static_cast<float>(value);
 
-                     emit materialInfoChanged(mInfo);
+                     emit materialInfoChanged(mMaterial);
                    });
   QObject::connect(mVSpinBox, qOverload<double>(&QDoubleSpinBox::valueChanged),
                    this, [this](const double &value) {
-                     mInfo.v = static_cast<float>(value);
+                     mMaterial.v = static_cast<float>(value);
 
-                     emit materialInfoChanged(mInfo);
+                     emit materialInfoChanged(mMaterial);
                    });
 }
 
-const MaterialInfo &MaterialEditor::getMaterialInfo() const { return mInfo; }
+const Material &MaterialEditor::getMaterialInfo() const { return mMaterial; }
 
-void MaterialEditor::setMaterialInfo(const MaterialInfo &Info) {
-  mInfo = Info;
+void MaterialEditor::setMaterialInfo(const Material &Info) {
+  mMaterial = Info;
 
-  mESpinBox->setValue(mInfo.e);
-  mVSpinBox->setValue(mInfo.v);
+  mESpinBox->setValue(mMaterial.e);
+  mVSpinBox->setValue(mMaterial.v);
 }
 
 void MaterialEditor::disableUI() {

@@ -1,11 +1,11 @@
-#ifndef POINTINFO_H
-#define POINTINFO_H
+#ifndef POINT_H
+#define POINT_H
 
 #include <QPointF>
 
 #include "stiffnessutils.h"
 
-struct PointInfo {
+struct Point {
   // x y
   QPointF coordinate = {};
 
@@ -16,4 +16,4 @@ struct PointInfo {
       StiffnessUtils::Constraints::Type::None;
 };
 
-#endif // POINTINFO_H
+#endif // POINT_H
