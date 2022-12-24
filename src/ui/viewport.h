@@ -29,6 +29,9 @@ public:
   const Figure &getFigure() const;
   void setFigure(const Figure &Figure);
 
+public slots:
+  void fitInScreen();
+
 signals:
   void onPointSelected(const int pointIndex);
 

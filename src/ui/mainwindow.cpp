@@ -24,8 +24,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() { mDockManager->deleteLater(); }
 
 void MainWindow::createLayout() {
-  // menu
+  mViewport = new Viewport();
+  mMaterialEditor = new MaterialEditor();
+  mPointEditor = new PointEditor();
 
+  // menu
   QMenuBar *menuBar = this->menuBar();
 
   {
@@ -35,6 +38,16 @@ void MainWindow::createLayout() {
     openAction->setShortcut(Qt::CTRL | Qt::Key_O);
 
     QObject::connect(openAction, &QAction::triggered, this, &MainWindow::open);
+  }
+
+  {
+    QMenu *viewMenu = menuBar->addMenu("View");
+
+    QAction *fitInScreenAction = viewMenu->addAction("Fit in screen");
+    fitInScreenAction->setShortcut(Qt::Key_F);
+
+    QObject::connect(fitInScreenAction, &QAction::triggered, mViewport,
+                     &Viewport::fitInScreen);
   }
 
   {
@@ -52,15 +65,12 @@ void MainWindow::createLayout() {
   // layout
 
   mDockManager = new ads::CDockManager(this);
-
-  mViewport = new Viewport();
   ads::CDockWidget *viewportDock = new ads::CDockWidget("Viewport");
   viewportDock->setWidget(mViewport);
   ads::CDockAreaWidget *viewportDockArea =
       mDockManager->setCentralWidget(viewportDock);
   viewportDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
 
-  mMaterialEditor = new MaterialEditor();
   ads::CDockWidget *materialEditorDock =
       new ads::CDockWidget("Material Editor");
   materialEditorDock->setWidget(mMaterialEditor);
@@ -72,7 +82,6 @@ void MainWindow::createLayout() {
       mDockManager->addDockWidget(ads::RightDockWidgetArea, materialEditorDock);
   layoutMenu->addAction(materialEditorDock->toggleViewAction());
 
-  mPointEditor = new PointEditor();
   ads::CDockWidget *pointEditorDock = new ads::CDockWidget("Point Editor");
   pointEditorDock->setWidget(mPointEditor);
   pointEditorDock->setMinimumSizeHintMode(

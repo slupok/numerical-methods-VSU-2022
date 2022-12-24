@@ -1,5 +1,7 @@
 #include "viewport.h"
 
+#include <QPolygonF>
+
 Viewport::Viewport(QWidget *parent) : QGraphicsView(parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -95,6 +97,10 @@ void Viewport::drawTriangles() {
 const Figure &Viewport::getFigure() const { return mFigure; }
 
 void Viewport::setFigure(const Figure &Figure) { mFigure = Figure; }
+
+void Viewport::fitInScreen() {
+  this->fitInView(mScene.sceneRect(), Qt::KeepAspectRatio);
+}
 
 const QColor &Viewport::getPointColor() const { return mPointColor; }
 
