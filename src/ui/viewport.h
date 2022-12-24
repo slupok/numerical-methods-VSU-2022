@@ -34,6 +34,7 @@ public slots:
 
 signals:
   void onPointSelected(const int pointIndex);
+  void onPointDeselect();
   void pointCoordinateChanged(const QPointF &point);
 
 protected:
@@ -46,6 +47,9 @@ protected:
 private:
   void drawPoints();
   void drawTriangles();
+  void drawAxes();
+
+  QPointF toScene(const QPointF &screen);
 
   QGraphicsScene mScene;
 

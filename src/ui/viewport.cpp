@@ -17,6 +17,7 @@ void Viewport::update() {
 
   drawTriangles();
   drawPoints();
+  drawAxes();
 
   QGraphicsView::update();
 }
@@ -65,6 +66,12 @@ void Viewport::drawTriangles() {
   }
 }
 
+void Viewport::drawAxes() { const auto size = this->size(); }
+
+QPointF Viewport::toScene(const QPointF &screen) {
+  return mapToScene(screen.toPoint()) * 1.f / mScaleFactor;
+}
+
 const Figure &Viewport::getFigure() const { return mFigure; }
 
 void Viewport::setFigure(const Figure &Figure) { mFigure = Figure; }
@@ -80,8 +87,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *event) {
     return;
   }
 
-  const QPointF mousePosition =
-      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
+  const QPointF mousePosition = toScene(event->localPos());
 
   mFigure.points[mPointSelected] = mousePosition;
 
@@ -93,8 +99,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void Viewport::mousePressEvent(QMouseEvent *event) {
-  const QPointF mousePosition =
-      mapToScene(event->localPos().toPoint()) * 1.f / mScaleFactor;
+  const QPointF mousePosition = toScene(event->localPos());
 
   for (int pointIndex = 0; pointIndex < mFigure.points.size(); ++pointIndex) {
     QPointF point = mFigure.points[pointIndex];
@@ -102,16 +107,26 @@ void Viewport::mousePressEvent(QMouseEvent *event) {
     if ((mousePosition - point).manhattanLength() <= mRadiusSearch) {
       mPointSelected = pointIndex;
       emit onPointSelected(mPointSelected);
+      this->update();
       return;
     }
   }
 
   mPointSelected = -1;
+
+  emit onPointDeselect();
+  this->update();
 }
 
 void Viewport::mouseReleaseEvent(QMouseEvent *event) {}
 
-void Viewport::wheelEvent(QWheelEvent *event) {}
+void Viewport::wheelEvent(QWheelEvent *event) {
+  if (event->delta() > 0) {
+    this->scale(1.1, 1.1);
+  } else {
+    this->scale(0.9, 0.9);
+  }
+}
 
 const QColor &Viewport::getPointColor() const { return mPointColor; }
 
