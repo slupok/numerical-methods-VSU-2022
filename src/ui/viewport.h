@@ -34,6 +34,7 @@ public slots:
 
 signals:
   void onPointSelected(const int pointIndex);
+  void onPointDeselect();
   void pointCoordinateChanged(const QPointF &point);
 
 protected:
@@ -46,6 +47,9 @@ protected:
 private:
   void drawPoints();
   void drawTriangles();
+  void drawAxes();
+
+  QPointF toScene(const QPointF &screen);
 
   QGraphicsScene mScene;
 
@@ -60,6 +64,7 @@ private:
   QColor mPointColor = Qt::green;
   QColor mSelectedPointColor = Qt::red;
   QColor mLineColor = Qt::blue;
+  QColor mAxisColor = Qt::black;
 
   Figure mFigure;
 };

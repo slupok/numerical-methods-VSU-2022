@@ -103,6 +103,9 @@ void MainWindow::createConnections() {
   QObject::connect(mViewport, &Viewport::onPointSelected, this,
                    &MainWindow::pointSelected);
 
+  QObject::connect(mViewport, &Viewport::onPointDeselect, this,
+                   [this]() { this->mPointEditor->disableUI(); });
+
   QObject::connect(mViewport, &Viewport::pointCoordinateChanged, this,
                    [this](const QPointF &coordinate) {
                      auto point = this->mPointEditor->getPoint();
