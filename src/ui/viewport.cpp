@@ -151,11 +151,21 @@ void Viewport::mousePressEvent(QMouseEvent *event) {
 void Viewport::mouseReleaseEvent(QMouseEvent *event) {}
 
 void Viewport::wheelEvent(QWheelEvent *event) {
-  if (event->delta() > 0) {
-    this->scale(1.1, 1.1);
-  } else {
-    this->scale(0.9, 0.9);
-  }
+
+#if defined(Q_OS_MACOS)
+  if(event->phase() == Qt::ScrollMomentum)
+    return;
+
+  int deltaY = event->phase() == Qt::NoScrollPhase ? event->angleDelta().y() : event->pixelDelta().y();
+  double tickUnits = event->phase() == Qt::NoScrollPhase ? 120.0 : 8.0;
+#else
+  int deltaY = event->angleDelta().y();
+  const double tickUnits = 120.0;
+#endif
+
+  float step = deltaY / tickUnits;
+  float scale = 1.0f + 0.1 * step;
+  this->scale(scale, scale);
 
   this->update();
 }
