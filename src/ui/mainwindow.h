@@ -6,10 +6,9 @@
 #include "materialeditor.h"
 #include "pointeditor.h"
 #include "viewport.h"
+#include "viewporteditor.h"
 
 #include "stiffnessutils.h"
-
-#include "common/figure.h"
 
 #include <DockManager.h>
 
@@ -31,7 +30,7 @@ private slots:
   void pointSelected(const int pointIndex);
   void pointInfoChanged(const Point &point);
 
-  void computeDisplacment();
+  void solve();
 
   // File
   void open();
@@ -47,6 +46,7 @@ private:
   Viewport *mViewport = nullptr;
   PointEditor *mPointEditor = nullptr;
   MaterialEditor *mMaterialEditor = nullptr;
+  ViewportEditor *mViewportEditor = nullptr;
 
   LoaderThread mLoader;
 

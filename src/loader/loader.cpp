@@ -4,18 +4,20 @@
 #include <QStringList>
 #include <QTextStream>
 
-Loader::Loader(const QString &path) : m_path(path) {}
+Loader::Loader(const QString &path) : mPath(path) {}
 
 bool Loader::load() {
-  if (m_path.isEmpty()) {
+  if (mPath.isEmpty()) {
     return false;
   }
 
-  QFile file(m_path);
+  QFile file(mPath);
 
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return false;
   }
+
+  mVertices.clear();
 
   QTextStream in(&file);
 
@@ -23,7 +25,7 @@ bool Loader::load() {
     QString line = in.readLine();
 
     if (line[0] != 'v' || !parseVertices(line)) {
-      m_vertices.clear();
+      mVertices.clear();
       return false;
     }
   }
@@ -31,7 +33,7 @@ bool Loader::load() {
   return true;
 }
 
-const QVector<QPointF> &Loader::getVertices() const { return m_vertices; }
+const QVector<QPointF> &Loader::getVertices() const { return mVertices; }
 
 bool Loader::parseVertices(const QString &vertex) {
   QStringList splittedVertex = vertex.split(" ");
@@ -51,11 +53,11 @@ bool Loader::parseVertices(const QString &vertex) {
     return false;
   }
 
-  m_vertices.push_back(QPointF(x, y));
+  mVertices.push_back(QPointF(x, y));
 
   return true;
 }
 
-const QString &Loader::getPath() const { return m_path; }
+const QString &Loader::getPath() const { return mPath; }
 
-void Loader::setPath(const QString &path) { m_path = path; }
+void Loader::setPath(const QString &path) { mPath = path; }

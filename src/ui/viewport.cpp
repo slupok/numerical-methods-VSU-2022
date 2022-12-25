@@ -17,19 +17,25 @@ Viewport::~Viewport() {}
 void Viewport::update() {
   mScene.clear();
 
-  drawTriangles();
-  drawPoints();
   drawAxes();
+
+  if (mShowFigure) {
+    drawFigure(mFigure);
+  }
+
+  if (mShowSolvedFigure) {
+    drawFigure(mSolvedFigure);
+  }
 
   QGraphicsView::update();
 }
 
-void Viewport::drawPoints() {
+void Viewport::drawPoints(const Figure &figure) {
   QPen pointPen(mPointColor);
   QBrush pointBrush(mPointColor);
 
-  for (int i = 0; i < mFigure.points.size(); ++i) {
-    QPointF pointInLocalCoord = mFigure.points[i] * mScaleFactor;
+  for (int i = 0; i < figure.points.size(); ++i) {
+    QPointF pointInLocalCoord = figure.points[i] * mScaleFactor;
 
     mScene.addEllipse(pointInLocalCoord.x() - mPointSize,
                       pointInLocalCoord.y() - mPointSize, mPointSize * 2,
@@ -40,7 +46,7 @@ void Viewport::drawPoints() {
     QPen selectedPointPen(mSelectedPointColor);
     QBrush selectedPointBrush(mSelectedPointColor);
 
-    QPointF pointInLocalCoord = mFigure.points[mPointSelected] * mScaleFactor;
+    QPointF pointInLocalCoord = figure.points[mPointSelected] * mScaleFactor;
 
     mScene.addEllipse(pointInLocalCoord.x() - mPointSize,
                       pointInLocalCoord.y() - mPointSize, mPointSize * 2,
@@ -48,19 +54,19 @@ void Viewport::drawPoints() {
   }
 }
 
-void Viewport::drawTriangles() {
+void Viewport::drawTriangles(const Figure &figure) {
   QPen linePen = QPen(mLineColor);
 
-  for (int pointIndex = 0; pointIndex < mFigure.triangleIndices.size() - 2;
+  for (int pointIndex = 0; pointIndex < figure.triangleIndices.size() - 2;
        pointIndex += 3) {
     const auto a =
-        mFigure.points[mFigure.triangleIndices[pointIndex]] * mScaleFactor;
+        figure.points[figure.triangleIndices[pointIndex]] * mScaleFactor;
 
     const auto b =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 1]] * mScaleFactor;
+        figure.points[figure.triangleIndices[pointIndex + 1]] * mScaleFactor;
 
     const auto c =
-        mFigure.points[mFigure.triangleIndices[pointIndex + 2]] * mScaleFactor;
+        figure.points[figure.triangleIndices[pointIndex + 2]] * mScaleFactor;
 
     mScene.addLine(QLineF(a, b), linePen);
     mScene.addLine(QLineF(b, c), linePen);
@@ -74,12 +80,34 @@ QPointF Viewport::toScene(const QPointF &screen) {
   return mapToScene(screen.toPoint()) * 1.f / mScaleFactor;
 }
 
+bool Viewport::getShowSolvedFigure() const { return mShowSolvedFigure; }
+
+void Viewport::setShowSolvedFigure(bool ShowSolvedFigure) {
+  mShowSolvedFigure = ShowSolvedFigure;
+  this->update();
+}
+
+void Viewport::clear() { mScene.clear(); }
+
+bool Viewport::getShowFigure() const { return mShowFigure; }
+
+void Viewport::setShowFigure(bool ShowFigure) {
+  mShowFigure = ShowFigure;
+  this->update();
+}
+
+const Figure &Viewport::getSolvedFigure() const { return mSolvedFigure; }
+
+void Viewport::setSolvedFigure(const Figure &SolvedFigure) {
+  mSolvedFigure = SolvedFigure;
+}
+
 const Figure &Viewport::getFigure() const { return mFigure; }
 
 void Viewport::setFigure(const Figure &Figure) { mFigure = Figure; }
 
 void Viewport::fitInScreen() {
-  this->fitInView(mScene.sceneRect(), Qt::KeepAspectRatio);
+  this->fitInView(mScene.itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {}
@@ -130,6 +158,15 @@ void Viewport::wheelEvent(QWheelEvent *event) {
   }
 
   this->update();
+}
+
+void Viewport::drawFigure(const Figure &figure) {
+  if (figure.points.isEmpty()) {
+    return;
+  }
+
+  drawTriangles(figure);
+  drawPoints(figure);
 }
 
 const QColor &Viewport::getPointColor() const { return mPointColor; }

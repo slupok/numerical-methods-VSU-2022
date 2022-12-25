@@ -24,9 +24,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() { mDockManager->deleteLater(); }
 
 void MainWindow::createLayout() {
-  mViewport = new Viewport();
-  mMaterialEditor = new MaterialEditor();
-  mPointEditor = new PointEditor();
+  mViewport = new Viewport;
+  mMaterialEditor = new MaterialEditor;
+  mPointEditor = new PointEditor;
+  mViewportEditor = new ViewportEditor(mViewport->getShowFigure(),
+                                       mViewport->getShowSolvedFigure());
 
   // menu
   QMenuBar *menuBar = this->menuBar();
@@ -57,7 +59,7 @@ void MainWindow::createLayout() {
     solveAction->setShortcut(Qt::CTRL | Qt::Key_C);
 
     QObject::connect(solveAction, &QAction::triggered, this,
-                     &MainWindow::computeDisplacment);
+                     &MainWindow::solve);
   }
 
   QMenu *layoutMenu = menuBar->addMenu("Layout");
@@ -71,18 +73,29 @@ void MainWindow::createLayout() {
       mDockManager->setCentralWidget(viewportDock);
   viewportDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
 
+  ads::CDockWidget *viewportEditorDock =
+      new ads::CDockWidget("Viewport editor");
+  viewportEditorDock->setWidget(mViewportEditor);
+  viewportEditorDock->setMinimumSizeHintMode(
+      ads::CDockWidget::MinimumSizeHintFromContent);
+  viewportEditorDock->setMinimumSize(200, 400);
+  viewportEditorDock->resize(200, 400);
+  ads::CDockAreaWidget *viewportEditorDockArea =
+      mDockManager->addDockWidget(ads::RightDockWidgetArea, viewportEditorDock);
+  layoutMenu->addAction(viewportEditorDock->toggleViewAction());
+
   ads::CDockWidget *materialEditorDock =
-      new ads::CDockWidget("Material Editor");
+      new ads::CDockWidget("Material editor");
   materialEditorDock->setWidget(mMaterialEditor);
   materialEditorDock->setMinimumSizeHintMode(
       ads::CDockWidget::MinimumSizeHintFromContent);
   materialEditorDock->setMinimumSize(200, 400);
   materialEditorDock->resize(200, 400);
-  ads::CDockAreaWidget *materialEditorDockArea =
-      mDockManager->addDockWidget(ads::RightDockWidgetArea, materialEditorDock);
+  ads::CDockAreaWidget *materialEditorDockArea = mDockManager->addDockWidget(
+      ads::BottomDockWidgetArea, materialEditorDock, viewportEditorDockArea);
   layoutMenu->addAction(materialEditorDock->toggleViewAction());
 
-  ads::CDockWidget *pointEditorDock = new ads::CDockWidget("Point Editor");
+  ads::CDockWidget *pointEditorDock = new ads::CDockWidget("Point editor");
   pointEditorDock->setWidget(mPointEditor);
   pointEditorDock->setMinimumSizeHintMode(
       ads::CDockWidget::MinimumSizeHintFromContent);
@@ -113,6 +126,15 @@ void MainWindow::createConnections() {
                      point.coordinate = coordinate;
 
                      this->mPointEditor->setPoint(point);
+                   });
+
+  QObject::connect(mViewportEditor, &ViewportEditor::showFigureChanged, this,
+                   [this](const bool showFigure) {
+                     this->mViewport->setShowFigure(showFigure);
+                   });
+  QObject::connect(mViewportEditor, &ViewportEditor::showSolvedFigureChange,
+                   this, [this](const bool showSolvedFigure) {
+                     this->mViewport->setShowSolvedFigure(showSolvedFigure);
                    });
 }
 
@@ -219,7 +241,7 @@ void MainWindow::pointInfoChanged(const Point &point) {
   this->updateViewport();
 }
 
-void MainWindow::computeDisplacment() {
+void MainWindow::solve() {
   const auto info = mMaterialEditor->getMaterialInfo();
 
   auto figure = mViewport->getFigure();
@@ -227,7 +249,7 @@ void MainWindow::computeDisplacment() {
   StiffnessUtils::compute(info.e, info.v, figure.points, figure.triangleIndices,
                           m_displacments, m_constraints);
 
-  mViewport->setFigure(figure);
+  mViewport->setSolvedFigure(figure);
   this->updateViewport();
 }
 
@@ -254,6 +276,10 @@ void MainWindow::open() {
 }
 
 void MainWindow::loaded() {
+  mViewport->clear();
+  mViewport->setFigure(Figure());
+  mViewport->setSolvedFigure(Figure());
+
   QVector<QPointF> points = mLoader.getVertices();
 
   std::pair<QVector<int>, QVector<QPointF>> indicesPoints =

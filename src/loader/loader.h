@@ -20,9 +20,9 @@ public:
 private:
   bool parseVertices(const QString &vertex);
 
-  QVector<QPointF> m_vertices;
+  QVector<QPointF> mVertices;
 
-  QString m_path;
+  QString mPath;
 };
 
 #endif // LOADER_H
