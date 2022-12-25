@@ -18,7 +18,14 @@ void Viewport::update() {
   mScene.clear();
 
   drawAxes();
-  drawFigure(mFigure);
+
+  if (mShowFigure) {
+    drawFigure(mFigure);
+  }
+
+  if (mShowSolvedFigure) {
+    drawFigure(mSolvedFigure);
+  }
 
   QGraphicsView::update();
 }
@@ -71,6 +78,28 @@ void Viewport::drawAxes() {}
 
 QPointF Viewport::toScene(const QPointF &screen) {
   return mapToScene(screen.toPoint()) * 1.f / mScaleFactor;
+}
+
+bool Viewport::getShowSolvedFigure() const { return mShowSolvedFigure; }
+
+void Viewport::setShowSolvedFigure(bool ShowSolvedFigure) {
+  mShowSolvedFigure = ShowSolvedFigure;
+  this->update();
+}
+
+void Viewport::clear() { mScene.clear(); }
+
+bool Viewport::getShowFigure() const { return mShowFigure; }
+
+void Viewport::setShowFigure(bool ShowFigure) {
+  mShowFigure = ShowFigure;
+  this->update();
+}
+
+const Figure &Viewport::getSolvedFigure() const { return mSolvedFigure; }
+
+void Viewport::setSolvedFigure(const Figure &SolvedFigure) {
+  mSolvedFigure = SolvedFigure;
 }
 
 const Figure &Viewport::getFigure() const { return mFigure; }
@@ -132,6 +161,10 @@ void Viewport::wheelEvent(QWheelEvent *event) {
 }
 
 void Viewport::drawFigure(const Figure &figure) {
+  if (figure.points.isEmpty()) {
+    return;
+  }
+
   drawTriangles(figure);
   drawPoints(figure);
 }

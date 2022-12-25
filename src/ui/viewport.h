@@ -29,6 +29,17 @@ public:
   const Figure &getFigure() const;
   void setFigure(const Figure &Figure);
 
+  const Figure &getSolvedFigure() const;
+  void setSolvedFigure(const Figure &SolvedFigure);
+
+  bool getShowFigure() const;
+  void setShowFigure(bool ShowFigure);
+
+  bool getShowSolvedFigure() const;
+  void setShowSolvedFigure(bool ShowSolvedFigure);
+
+  void clear();
+
 public slots:
   void fitInScreen();
 
@@ -68,6 +79,10 @@ private:
   QColor mAxisColor = Qt::black;
 
   Figure mFigure;
+  Figure mSolvedFigure;
+
+  bool mShowFigure = true;
+  bool mShowSolvedFigure = false;
 };
 
 #endif // VIEWPORT_H
