@@ -159,8 +159,29 @@ void TriangulationUtils::Alignment(std::vector<PointWithLinks> &points,
                      localPoints[indexOfNext].y - localPoints[index].y);
   PointWithLinks newPoint = medianVector(prevPoint, nextPoint, k);
 
+  PointWithLinks lastPoint = PointWithLinks(pointToRemove);
   pointToRemove.x += newPoint.x;
   pointToRemove.y += newPoint.y;
+  
+  for (int i = 0; i < localPoints.size(); i++) {
+
+      int indexOfFirst = localPoints[i].currentNumber;
+      int indexOfSecond = localPoints[i].links[1];
+
+	if(indexOfFirst != index && indexOfSecond != index){
+		float delta = (points[indexOfSecond].x - points[indexOfFirst].x)*(lastPoint.y - pointToRemove.y) - (points[indexOfSecond].y - points[indexOfFirst].y)*(lastPoint.x - pointToRemove.x);
+		if(delta != 0){
+			float delta1 = (lastPoint.x - points[indexOfFirst].x)*(lastPoint.y - pointToRemove.y) - (lastPoint.y - points[indexOfFirst].y)*(lastPoint.x - pointToRemove.x);
+			float delta2 = (points[indexOfSecond].x - points[indexOfFirst].x)*(lastPoint.y - points[indexOfFirst].y) - (points[indexOfSecond].y - points[indexOfFirst].y)*(lastPoint.x - points[indexOfFirst].x);
+			float t1 = delta1/delta;
+			float t2 = delta2/delta;
+			if(t1 > -0.1 && t1 < 1.1 && t2 > 0 && t2 < 2){
+				pointToRemove.x = lastPoint.x * (1 - t2 * 0.5) + pointToRemove.x * t2 * 0.5;
+				pointToRemove.y = lastPoint.y * (1 - t2 * 0.5) + pointToRemove.y * t2 * 0.5;
+			}
+		}
+	}
+}
 
   localPoints[index] = pointToRemove;
   points[pointToRemove.links[0]].links.push_back(points.size());
@@ -283,8 +304,12 @@ PointWithLinks TriangulationUtils::medianVector(PointWithLinks pointA,
                                                 float k) {
   PointWithLinks result;
 
-  result.x = (pointA.x + pointB.x) * 0.5f * k;
-  result.y = (pointA.y + pointB.y) * 0.5f * k;
+    float ANorm = sqrt(pointA.x * pointA.x + pointA.y * pointA.y);
+    float BNorm = sqrt(pointB.x * pointB.x + pointB.y * pointB.y);
+
+
+  result.x = (pointA.x / ANorm + pointB.x / BNorm) * k * (ANorm + BNorm) / (1 + pointA.x * pointB.x + pointA.y * pointB.y);
+  result.y = (pointA.y / ANorm + pointB.y / BNorm) * k * (ANorm + BNorm) / (1 + pointA.x * pointB.x + pointA.y * pointB.y);
 
   return result;
 }
@@ -350,7 +375,7 @@ TriangulationUtils::pointsWithLinks(const QVector<QPointF> &points) {
                                               pointIndex, points.size()));
 
   vector<Triangle> triangles = TriangulationUtils::Triangulate(
-      pointsWidthLinks, 1.0f, 75.0f, 90.0f, 30.0f);
+      pointsWidthLinks, 16.0f, 75.0f, 90.0f, 30.0f);
 
   return pointsWidthLinks;
 }
