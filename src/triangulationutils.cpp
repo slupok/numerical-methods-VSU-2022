@@ -7,13 +7,16 @@ using namespace TriangulationUtils;
 
 float TriangulationUtils::AngleBetween(PointWithLinks vector1,
                                        PointWithLinks vector2) {
-  double sin = vector1.x * vector2.y - vector2.x * vector1.y;
-  double cos = vector1.x * vector2.x + vector1.y * vector2.y;
 
-  auto result = atan2(sin, cos) * (180 / M_PI);
+  float cos = (vector1.x * vector2.x + vector1.y * vector2.y) / sqrt((vector1.x * vector1.x + vector1.y * vector1.y) * (vector2.x * vector2.x + vector2.y * vector2.y));
+    if(cos < -1)
+        cos = -1;
+    if(cos > 1)
+        cos = 1;
+    auto result = acos(cos) * (180 / M_PI);
 
-  if (result < 0)
-    result *= -1;
+  if (vector1.y * vector2.x - vector1.x * vector2.y < 0)
+    result = 360 - result;
 
   return (float)result;
 }
@@ -61,7 +64,7 @@ TriangulationUtils::Triangulate(std::vector<PointWithLinks> &points, float k,
   while (localPoints.size() > 3) {
     int index;
     float a1, a2, a3;
-    pair<int, float> minAngle = findMinAngle(localPoints, points);
+     pair<int, float> minAngle = findMinAngle(localPoints, points);
 
     index = minAngle.first;
     a1 = minAngle.second;
@@ -325,7 +328,7 @@ TriangulationUtils::triangulationPolygon(const QVector<QPointF> &points,
                                               pointIndex, points.size()));
 
   vector<Triangle> triangles = TriangulationUtils::Triangulate(
-      pointsWidthLinks, 1.0f, 75.0f, 90.0f, 30.0f);
+      pointsWidthLinks, 16.0f, 75.0f, 90.0f, 30.0f);
 
   vector<Vector2> vectors(pointsWidthLinks.size());
   for (int i = 0; i < pointsWidthLinks.size(); i++)
