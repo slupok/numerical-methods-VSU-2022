@@ -143,6 +143,10 @@ class SimplicialLDT
     Eigen::SparseMatrix<float> B;
     void constructLLTMatrix(const SparseMatrix<float> &a)
     {
+        typedef Triplet<double> T;
+        std::vector<T> tripletList;
+        tripletList.reserve(a.rows());
+        
         std::vector<std::vector<double>> l;
         for(int i = 0; i < a.rows(); i++) {
             for(int j = i; j <= kN(i, a.rows(), a.cols()); j++) {
@@ -161,7 +165,7 @@ class SimplicialLDT
                 }
             }
         }
-        B.setFromTriplets(l.begin(), l.end());
+        B.setFromTriplets(tripletList.begin(), tripletList.end());
     }
 
     VectorXf solve(const VectorXf &b)
