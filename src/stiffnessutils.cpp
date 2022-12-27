@@ -123,6 +123,68 @@ void determinant() {
 
 };
 
+class SimplicialLDT
+{
+    SimplicialLDT(const SparseMatrix<float> &a)
+    {
+        constructLLTMatrix(a);
+    }
+
+    double k0(int i, int L)
+    {
+        return i <= L ? 0 : i - L;
+    }
+
+    double kN(int i, int L, int N)
+    {
+        return i > N - L ? N - L : i + L;
+    }
+
+    Eigen::SparseMatrix<float> B;
+    void constructLLTMatrix(const SparseMatrix<float> &a)
+    {
+        std::vector<std::vector<double>> l;
+        for(int i = 0; i < a.rows(); i++) {
+            for(int j = i; j <= kN(i, a.rows(), a.cols()); j++) {
+                if (i == j) {
+                    l[i][j] = a.coeff(i - j - 1 + a.rows(), j);
+                    for(int k = 0; k < i; k++) {
+                        l[i][j] -= l[i][k] * l[i][k];
+                    }
+                    l[i][j] = std::sqrt(l[i][j]);
+                } else {
+                    l[i][j] = a.coeff(i - j - 1 + a.rows(), j);
+                    for(int k = k0(i, a.rows()); k < j; k++) {
+                        l[i][j] -= l[i][k] * l[j][k];
+                    }
+                    l[i][j] /= l[j][j];
+                }
+            }
+        }
+        B.setFromTriplets(l.begin(), l.end());
+    }
+
+    VectorXf solve(const VectorXf &b)
+    {
+        const SparseMatrix<float> BT = B.transpose();
+        VectorXf y(b);
+        for(int i = 0; i < b.rows(); i++) {
+            for(int j = 0; j < i; j++) {
+                y[i] -= B.coeff(i, j) * y[j];
+            }
+            y[i] /= B.coeff(i, i);
+        }
+
+        for(int i = b.rows() - 1; i >=0; i--) {
+            for(int j = b.rows() - 1; j > i ; j--) {
+                y[i] -= BT.coeff(i, j) * y[j];
+            }
+            y[i] /= BT.coeff(i, i);
+        }
+        return y;
+    }
+};
+
 Matrix3f StiffnessUtils::calculateMaterialMatrix(const float &E,
                                                  const float &v) {
   Matrix3f materialMatrix;
