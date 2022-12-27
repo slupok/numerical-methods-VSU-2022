@@ -7,6 +7,122 @@ using namespace std;
 using namespace Eigen;
 using namespace StiffnessUtils;
 
+class Matrx3f{
+public:
+    double **A;
+    int N =100;
+
+void inverse()
+{
+    double temp;
+    double **E = new double *[N];
+
+    for (int i = 0; i < N; i++)
+        E[i] = new double [N];
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+        {
+            E[i][j] = 0.0;
+
+            if (i == j)
+                E[i][j] = 1.0;
+        }
+
+    for (int k = 0; k < N; k++)
+    {
+        temp = A[k][k];
+
+        for (int j = 0; j < N; j++)
+        {
+            A[k][j] /= temp;
+            E[k][j] /= temp;
+        }
+
+        for (int i = k + 1; i < N; i++)
+        {
+            temp = A[i][k];
+
+            for (int j = 0; j < N; j++)
+            {
+                A[i][j] -= A[k][j] * temp;
+                E[i][j] -= E[k][j] * temp;
+            }
+        }
+    }
+
+    for (int k = N - 1; k > 0; k--)
+    {
+        for (int i = k - 1; i >= 0; i--)
+        {
+            temp = A[i][k];
+
+            for (int j = 0; j < N; j++)
+            {
+                A[i][j] -= A[k][j] * temp;
+                E[i][j] -= E[k][j] * temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            A[i][j] = E[i][j];
+}
+
+void transpose()
+{
+    int M;
+    int i,j;
+    double **B;
+    B=new double *[N];
+    if(B==NULL)
+    {
+       cout<< "Нет ОП \n";
+       exit(1);
+    }
+    for (i=0;i< N;i++)
+    {
+       B[i]=new double[M];
+       if (B[i]==NULL)
+       {
+           cout<< "Нет ОП \n";
+           exit(1);
+       }
+    }
+    for (i=0;i< N;i++)
+        for (j=0;j< M;j++)
+        B[j][i]=A[i][j];
+}
+
+void determinant() {
+    int m;
+    int i, j, d, k, n;
+    double **p;
+    p = new double*[m];
+    for (i = 0; i<m; i++)
+       p[i] = new double[m];
+     j = 0; d = 0;
+     k = 1; //(-1) в степени i
+     n = m - 1;
+     if (m<1) cout << "Определитель вычислить невозможно!";
+     if (m == 1) {
+       d = A[0][0];
+     }
+     if (m == 2) {
+      d = A[0][0] * A[1][1] - (A[1][0] * A[0][1]);
+    }
+    if (m>2) {
+      for (i = 0; i<m; i++) {
+        cout << A[i][j] << endl;
+        d = d + k * A[i][0];
+       k = -k;
+      }
+    }
+};
+
+};
+
 Matrix3f StiffnessUtils::calculateMaterialMatrix(const float &E,
                                                  const float &v) {
   Matrix3f materialMatrix;
