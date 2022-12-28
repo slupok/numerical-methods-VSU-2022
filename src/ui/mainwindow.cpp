@@ -203,7 +203,7 @@ void MainWindow::pointInfoChanged(const Point &point) {
   for (int i = 0; i < m_displacments.size(); ++i) {
     if (m_displacments[i].pointIndex == m_selectedPointIndex) {
       m_displacments[i].u = static_cast<float>(point.displacement.x());
-      m_displacments[i].v = static_cast<float>(point.displacement.y());
+      m_displacments[i].v = -static_cast<float>(point.displacement.y());
 
       displacmentFound = true;
 
@@ -225,7 +225,7 @@ void MainWindow::pointInfoChanged(const Point &point) {
   if (!displacmentFound) {
     StiffnessUtils::Displacment displacment;
     displacment.u = static_cast<float>(point.displacement.x());
-    displacment.v = static_cast<float>(point.displacement.y());
+    displacment.v = -static_cast<float>(point.displacement.y());
     displacment.pointIndex = m_selectedPointIndex;
     m_displacments.push_back(displacment);
   }
