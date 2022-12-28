@@ -311,8 +311,8 @@ PointWithLinks TriangulationUtils::medianVector(PointWithLinks pointA,
     float BNorm = sqrt(pointB.x * pointB.x + pointB.y * pointB.y);
 
 
-  result.x = (pointA.x / ANorm + pointB.x / BNorm) * k * (ANorm + BNorm) / (1 + pointA.x * pointB.x + pointA.y * pointB.y);
-  result.y = (pointA.y / ANorm + pointB.y / BNorm) * k * (ANorm + BNorm) / (1 + pointA.x * pointB.x + pointA.y * pointB.y);
+  result.x = (pointA.x / ANorm + pointB.x / BNorm) * k * (ANorm + BNorm) / (1 + (pointA.x * pointB.x + pointA.y * pointB.y) / (ANorm * BNorm));
+  result.y = (pointA.y / ANorm + pointB.y / BNorm) * k * (ANorm + BNorm) / (1 + (pointA.x * pointB.x + pointA.y * pointB.y) / (ANorm * BNorm));
 
   return result;
 }
