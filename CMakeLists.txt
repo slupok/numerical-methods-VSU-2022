@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD            17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS         OFF)
 set(CMAKE_AUTOMOC                 ON)
-
+set(CMAKE_PREFIX_PATH "C:\\Qt\\5.15.2\\mingw81-64\\")
 set(BIN_BUILD_DIR ${CMAKE_BINARY_DIR}/bin)
 set(LIB_BUILD_DIR ${CMAKE_BINARY_DIR}/lib)
 
